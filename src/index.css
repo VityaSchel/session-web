@@ -1,0 +1,13 @@
+body {
+  margin: 0;
+  background: #121212;
+  min-height: 100lvh;
+}
+
+#root, #root > * {
+  height: 100lvh;
+}
+
+iframe {
+  border: 0;
+}
