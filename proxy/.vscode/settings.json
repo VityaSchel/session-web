@@ -1,0 +1,21 @@
+{
+  "editor.tabCompletion": "on",
+  "path-intellisense.mappings": {
+    "@/*": "${workspaceFolder}/*"
+  },
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "editor.quickSuggestions": {
+    "strings": "on"
+  },
+  "i18n-ally.localesPaths": [
+    "public/locales"
+  ],
+  "i18n-ally.defaultNamespace": "common",
+  "i18n-ally.namespace": true,
+  "i18n-ally.keystyle": "nested",
+  "i18n-ally.enabledParsers": [
+    "json"
+  ]
+}

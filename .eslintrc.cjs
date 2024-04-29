@@ -38,12 +38,11 @@ module.exports = {
     // React
     {
       files: ['**/*.{js,jsx,ts,tsx}'],
-      plugins: ['react', 'jsx-a11y'],
+      plugins: ['react'],
       extends: [
         'plugin:react/recommended',
         'plugin:react/jsx-runtime',
-        'plugin:react-hooks/recommended',
-        'plugin:jsx-a11y/recommended',
+        'plugin:react-hooks/recommended'
       ],
       settings: {
         react: {
@@ -53,10 +52,7 @@ module.exports = {
         linkComponents: [
           { name: 'Link', linkAttribute: 'to' },
           { name: 'NavLink', linkAttribute: 'to' },
-        ],
-        'import/resolver': {
-          typescript: {},
-        },
+        ]
       },
       rules: {
         'no-unused-vars': 'warn',
@@ -69,21 +65,8 @@ module.exports = {
       files: ['**/*.{ts,tsx}'],
       plugins: ['@typescript-eslint', 'import'],
       parser: '@typescript-eslint/parser',
-      settings: {
-        'import/internal-regex': '^~/',
-        'import/resolver': {
-          node: {
-            extensions: ['.ts', '.tsx'],
-          },
-          typescript: {
-            alwaysTryTypes: true,
-          },
-        },
-      },
       extends: [
-        'plugin:@typescript-eslint/recommended',
-        'plugin:import/recommended',
-        'plugin:import/typescript',
+        'plugin:@typescript-eslint/recommended'
       ],
       rules: {
         'no-unused-vars': 'warn',

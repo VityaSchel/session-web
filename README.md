@@ -1,14 +1,13 @@
 # Session Web
 
-Experimental project running [Session messenger](https://getsession.org) in browser
+Experimental project running [Session messenger](https://getsession.org) in browser.
 
-Runs on Vite, WebContainers and my own [session-messenger-nodejs framework](https://github.com/VityaSchel/session-nodejs-bot)
+**This is rather a challenge for me, rather than usable client. This website is unofficial implementation of Session messenger protocol which is not intended to be used with your actual accounts.**
 
-## How does it work?
+Top 3 reasons why you should not input anything confidential and instead use official client:
 
-1. I'm using webcontainers.io to run Node.js VM inside browser
-2. Since stackblitz does not allow github dependencies, selfhost it and download/write inside containers on start
-3. Cmake doesn't work and I don't want to compile it under WASM and there is no reason because we can compile libsession-util itself and use ready binary instead of compiling inside container on each start
-4. I have no idea how WASM works and experimenting with emscripten and cmake didn't work out so abandoning this project. 
+1. I didn't care about best practices when writing this code, it does not use ANY security measures implemented in official client, it does not prevent you from any kind of malicious attack, for example MITM
+2. I host my own proxy server, since official Session SeedNodesApi endpoints does not return CORS headers, thus blocking direct fetch. So even though all the data is encrypted during transmission, you have to take my word I'm not logging or modifying it on this proxy server
+3. This client does not support any features and is not maintained for security vulnerabilities found in code or dependencies
 
-if you knows how to build libsession-util under wasm and most importantly migrate nodejs native bindings from cmake/node-gyp to wasm to avoid rewriting session code, tell me: https://t.me/hlothdev
+Runs on Vite. Mostly written from scratch using [Session Desktop client](https://github.com/oxen-io/session-desktop)
