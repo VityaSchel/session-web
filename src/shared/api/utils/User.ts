@@ -3,8 +3,8 @@
 
 import _ from 'lodash'
 import { toHex } from './String'
-import { SessionKeyPair } from '../../../../types/keypairs'
-import * as Data from '../data'
+import { SessionKeyPairLibsodiumSumo as SessionKeyPair } from '../../../../types/keypairs'
+import * as Storage from '../storage'
 
 export type HexKeyPair = {
   pubKey: string;
@@ -51,8 +51,8 @@ export async function getIdentityKeyPair(): Promise<SessionKeyPair | undefined> 
   if (cachedIdentityKeyPair) {
     return cachedIdentityKeyPair
   }
-  const item = await Data.getItemById('identityKey')
+  const item = await Storage.getIdentityKeyPair()
 
-  cachedIdentityKeyPair = item?.value
+  cachedIdentityKeyPair = item
   return cachedIdentityKeyPair
 }

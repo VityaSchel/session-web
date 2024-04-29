@@ -6,14 +6,7 @@ import * as StringUtils from './utils/String'
 import { WithShortenOrExtend } from '../../../types/snode-request-types'
 import * as UserUtils from './utils/User'
 import * as GetNetworkTime from './get-network-time'
-
-export type SnodeSignatureResult = {
-  timestamp: number;
-  // sig_timestamp: number;
-  signature: string;
-  pubkey_ed25519: string;
-  pubkey: string; // this is the x25519 key of the pubkey we are doing the request to (ourself for our swarm usually)
-};
+import { SnodeSignatureResult } from '../../../types/snode-signature-result'
 
 async function getSnodeSignatureByHashesParams({
   messages,
@@ -49,7 +42,7 @@ async function getSnodeSignatureByHashesParams({
   }
 }
 
-async function getSnodeSignatureParams(params: {
+export async function getSnodeSignatureParams(params: {
   pubkey: string;
   namespace: number | null | 'all'; // 'all' can be used to clear all namespaces (during account deletion)
   method: 'retrieve' | 'store' | 'delete_all';

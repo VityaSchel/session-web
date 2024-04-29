@@ -1,0 +1,13 @@
+diff --git a/node_modules/cors/lib/index.js b/node_modules/cors/lib/index.js
+index 5475aec..7f6312c 100644
+--- a/node_modules/cors/lib/index.js
++++ b/node_modules/cors/lib/index.js
+@@ -177,7 +177,7 @@
+         //   for 204 or they just hang waiting for a body
+         res.statusCode = options.optionsSuccessStatus;
+         res.setHeader('Content-Length', '0');
+-        res.end();
++//        res.end();
+       }
+     } else {
+       // actual response

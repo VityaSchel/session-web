@@ -48,7 +48,6 @@ async function doRequest({
       'Accept-Language': 'en-us',
       'Content-Type': 'application/json',
     }
-
     const response = await fetch(url, {
       ...fetchOptions,
       body: fetchOptions.body || undefined,

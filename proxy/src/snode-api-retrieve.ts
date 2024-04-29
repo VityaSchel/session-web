@@ -3,10 +3,9 @@
 
 import { Snode } from './snodes'
 import { SnodeNamespace, SnodeNamespaces } from '../../types/namespaces'
-import { RetrieveLegacyClosedGroupSubRequestType, RetrieveSubRequestType, UpdateExpiryOnNodeSubRequest } from '../../types/snode-request-types'
+import { RetrieveLegacyClosedGroupSubRequestType, RetrieveSubRequestType } from '../../types/snode-request-types'
 import { isArray, omit } from 'lodash'
-import { SnodeSignature } from '../../src/shared/api/snode-signature'
-import { TTL_DEFAULT } from '../../types/ttl-default'
+import { SnodeSignatureResult } from '../../types/snode-signature-result'
 import { doSnodeBatchRequest } from './batch-request'
 import { GetNetworkTime } from './network-time'
 
@@ -37,8 +36,9 @@ async function buildRetrieveRequest(
   lastHashes: Array<string>,
   pubkey: string,
   namespaces: Array<SnodeNamespaces>,
-  ourPubkey: string,
-  configHashesToBump: Array<string> | null
+  signatureBuilt: SnodeSignatureResult
+  // ourPubkey: string,
+  // configHashesToBump: Array<string> | null
 ): Promise<Array<RetrieveSubRequestType>> {
   const maxSizeMap = SnodeNamespace.maxSizeMap(namespaces)
   const retrieveRequestsParams: Array<RetrieveSubRequestType> = await Promise.all(
@@ -53,11 +53,11 @@ async function buildRetrieveRequest(
       }
 
       if (namespace === SnodeNamespaces.ClosedGroupMessage) {
-        if (pubkey === ourPubkey || !pubkey.startsWith('05')) {
-          throw new Error(
-            'namespace -10 can only be used to retrieve messages from a legacy closed group (prefix 05)'
-          )
-        }
+        // if (pubkey === ourPubkey || !pubkey.startsWith('05')) {
+        //   throw new Error(
+        //     'namespace -10 can only be used to retrieve messages from a legacy closed group (prefix 05)'
+        //   )
+        // }
         const retrieveLegacyClosedGroup = {
           ...retrieveParam,
           namespace,
@@ -78,11 +78,11 @@ async function buildRetrieveRequest(
       ) {
         throw new Error(`not a legacy closed group. namespace can only be 0 and was ${namespace}`)
       }
-      if (pubkey !== ourPubkey) {
-        throw new Error('not a legacy closed group. pubkey can only be ours')
-      }
-      const signatureArgs = { ...retrieveParam, method: 'retrieve' as const, ourPubkey }
-      const signatureBuilt = await SnodeSignature.getSnodeSignatureParams(signatureArgs)
+      // if (pubkey !== ourPubkey) {
+      //   throw new Error('not a legacy closed group. pubkey can only be ours')
+      // }
+      // const signatureArgs = { ...retrieveParam, method: 'retrieve' as const, ourPubkey }
+      // const signatureBuilt = await SnodeSignature.getSnodeSignatureParams(signatureArgs)
       const retrieve: RetrieveSubRequestType = {
         method: 'retrieve',
         params: { ...retrieveParam, ...signatureBuilt },
@@ -91,32 +91,32 @@ async function buildRetrieveRequest(
     })
   )
 
-  if (configHashesToBump?.length) {
-    const expiry = Date.now() + TTL_DEFAULT.CONFIG_MESSAGE
-    const signResult = await SnodeSignature.generateUpdateExpirySignature({
-      shortenOrExtend: '',
-      timestamp: expiry,
-      messageHashes: configHashesToBump,
-    })
-    if (!signResult) {
-      console.warn(
-        `SnodeSignature.generateUpdateExpirySignature returned result empty for hashes ${configHashesToBump}`
-      )
-    } else {
-      const expireParams: UpdateExpiryOnNodeSubRequest = {
-        method: 'expire',
-        params: {
-          messages: configHashesToBump,
-          pubkey: ourPubkey,
-          expiry,
-          signature: signResult.signature,
-          pubkey_ed25519: signResult.pubkey_ed25519,
-        },
-      }
+  // if (configHashesToBump?.length) {
+  //   const expiry = Date.now() + TTL_DEFAULT.CONFIG_MESSAGE
+  //   const signResult = await SnodeSignature.generateUpdateExpirySignature({
+  //     shortenOrExtend: '',
+  //     timestamp: expiry,
+  //     messageHashes: configHashesToBump,
+  //   })
+  //   if (!signResult) {
+  //     console.warn(
+  //       `SnodeSignature.generateUpdateExpirySignature returned result empty for hashes ${configHashesToBump}`
+  //     )
+  //   } else {
+  //     const expireParams: UpdateExpiryOnNodeSubRequest = {
+  //       method: 'expire',
+  //       params: {
+  //         messages: configHashesToBump,
+  //         pubkey: ourPubkey,
+  //         expiry,
+  //         signature: signResult.signature,
+  //         pubkey_ed25519: signResult.pubkey_ed25519,
+  //       },
+  //     }
 
-      retrieveRequestsParams.push(expireParams)
-    }
-  }
+  //     retrieveRequestsParams.push(expireParams)
+  //   }
+  // }
   return retrieveRequestsParams
 }
 
@@ -125,8 +125,9 @@ export async function retrieveNextMessages(
   lastHashes: Array<string>,
   associatedWith: string,
   namespaces: Array<SnodeNamespaces>,
-  ourPubkey: string,
-  configHashesToBump: Array<string> | null
+  signatureBuilt: SnodeSignatureResult
+  // ourPubkey: string,
+  // configHashesToBump: Array<string> | null
 ): Promise<RetrieveMessagesResultsBatched> {
   if (namespaces.length !== lastHashes.length) {
     throw new Error('namespaces and lasthashes does not match')
@@ -136,8 +137,9 @@ export async function retrieveNextMessages(
     lastHashes,
     associatedWith,
     namespaces,
-    ourPubkey,
-    configHashesToBump
+    signatureBuilt
+    // ourPubkey,
+    // configHashesToBump
   )
   // let exceptions bubble up
   // no retry for this one as this a call we do every few seconds while polling for messages
@@ -168,6 +170,7 @@ export async function retrieveNextMessages(
   const firstResult = results[0]
 
   if (firstResult.code !== 200) {
+    console.log(firstResult)
     console.warn(`retrieveNextMessages result is not 200 but ${firstResult.code}`)
     throw new Error(
       `_retrieveNextMessages - retrieve result is not 200 with ${targetNode.public_ip}:${targetNode.storage_port} but ${firstResult.code}`
