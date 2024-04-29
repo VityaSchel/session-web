@@ -3,7 +3,7 @@
 
 import _ from 'lodash'
 import { toHex } from './String'
-import { SessionKeyPair } from '../../../types/keypairs'
+import { SessionKeyPair } from '../../../../types/keypairs'
 import * as Data from '../data'
 
 export type HexKeyPair = {

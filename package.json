@@ -12,7 +12,9 @@
   },
   "dependencies": {
     "@types/bun": "^1.1.0",
+    "buffer": "^6.0.3",
     "bytebuffer": "^5.0.1",
+    "crc": "^4.3.2",
     "libsodium-wrappers-sumo": "^0.7.13",
     "lodash": "^4.17.21",
     "react": "^18.2.0",

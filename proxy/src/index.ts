@@ -17,7 +17,7 @@ server.get('/snodes', async (req, res) => {
   list.forEach(node => snodes.set(node.public_ip + ':' + node.storage_port, node))
   res.status(200).json({
     ok: true,
-    nodes: list
+    snodes: list.map(node => node.public_ip + ':' + node.storage_port)
   })
 })
 
@@ -75,6 +75,10 @@ server.post('/poll_snode', async (req, res) => {
     })
     return
   }
+})
+
+server.options('/poll_snode', (req, res) => {
+  res.status(200).send(true)
 })
 
 server.listen(3000, () => {

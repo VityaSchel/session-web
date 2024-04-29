@@ -3,7 +3,7 @@
 
 import sodium from 'libsodium-wrappers-sumo'
 import * as StringUtils from './utils/String'
-import { WithShortenOrExtend } from '../../types/snode-request-types'
+import { WithShortenOrExtend } from '../../../types/snode-request-types'
 import * as UserUtils from './utils/User'
 import * as GetNetworkTime from './get-network-time'
 
