@@ -4,7 +4,7 @@ import { generateKeypair, generateMnemonic } from '@/shared/api/account-manager'
 import _ from 'lodash'
 import { toHex } from '@/shared/api/utils/String'
 import * as Storage from '@/shared/api/storage'
-import { getMessages } from '@/shared/api/messages'
+import { getNewMessages } from '@/shared/api/messages'
 
 export function HomePage() {
   const [snodes, setSnodes] = React.useState<string[]>([])
@@ -25,26 +25,19 @@ export function HomePage() {
     await Storage.setIdentityKeypair(keypair)
     console.log('pubkey', toHex(keypair.pubKey))
     console.log('privkey', toHex(keypair.privKey))
+    alert('This won\'t work for now, you have to register your account first, please use mnemonic login for now')
   }
 
   const handlePollKeypair = async () => {
-    // const snode = prompt('nodeip:nodeport')
-    // if(!snode) return
-    // const userPubkey = prompt('our pubkey')
-    // if (!userPubkey) return
-    // const pubkey = prompt('target pubkey')
-    // if (!pubkey) return
-    // await pollSnode({
-    //   snode,
-    //   namespaces: [SnodeNamespaces.UserMessages],
-    //   pubkey,
-    //   userPubkey
-    // })
-    await getMessages()
+    const messages = await getNewMessages()
+    console.log(messages.length + ' new messages')
+    for(const msg of messages) {
+      console.log('From', msg.content.dataMessage?.profile?.displayName, 'with content', msg.content.dataMessage?.body, 'sent at', msg.content.dataMessage?.timestamp)
+    }
   }
 
   const handleLoginWithMnemonic = async () => {
-    const mnemonic = 'gadget academy batch shackles tirade yesterday unwind tuesday tanks usage vortex irate usage'//prompt('mnemonic')
+    const mnemonic = prompt('mnemonic')
     if(!mnemonic) return
     const keypair = await generateKeypair(mnemonic)
     await Storage.setIdentityKeypair(keypair)

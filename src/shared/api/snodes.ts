@@ -32,5 +32,5 @@ export async function pollSnode({ snode, namespace, pubkey }: {
     })
   })
     .then(res => res.json())
-  return pollResult.results
+  return pollResult.results[0]
 }

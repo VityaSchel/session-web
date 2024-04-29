@@ -1,6 +1,8 @@
 import { fromHex } from 'bytebuffer'
 import { SessionKeyPairLibsodiumSumo as SessionKeyPair } from '../../../types/keypairs'
 import { toHex } from '@/shared/api/utils/String'
+import { PubKey } from '@/shared/api/pubkey'
+import { HexKeyPair } from '@/shared/api/eckeypair'
 
 export type SessionKeyPairStorage = {
   ed25519KeyPair: {
@@ -49,4 +51,15 @@ export function isMessageSeen(hash: string) {
 
 export function setMessageSeen(hash: string) {
   return window.localStorage.setItem('message-'+hash, String(Date.now()))
+}
+
+/**
+ * The returned array is ordered based on the timestamp, the latest is at the end.
+ */
+export async function getAllEncryptionKeyPairsForGroup(
+  groupPublicKey: string | PubKey
+): Promise<Array<HexKeyPair> | undefined> {
+  const pubkey = (groupPublicKey as PubKey).key || (groupPublicKey as string)
+  const items = window.localStorage.getItem('group-'+pubkey)
+  return items ? JSON.parse(items) : undefined
 }
