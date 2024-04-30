@@ -1,0 +1,13 @@
+{
+  "authorization": "Авторизация",
+  "signInHeader": "Войти с мнемоникой",
+  "signIn": "Войти",
+  "createAccountHeader": "Создать новый SessionID",
+  "createAccount": "Создать",
+  "mnemonic": "Мнемоника",
+  "goBack": "Назад",
+  "generatedSessionID": "Ваш сгенерированный SessionID:",
+  "generatedMnemonic": "Мнемоника для входа (храните в тайне):",
+  "continue": "Продолжить",
+  "invalidMnemonic": "Неправильная мнемоника, пожалуйста, введите мнемонику с ровно 13 словами"
+}

@@ -12,15 +12,23 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@reduxjs/toolkit": "^2.2.3",
     "@types/bun": "^1.1.0",
     "buffer": "^6.0.3",
     "bytebuffer": "^5.0.1",
+    "classnames": "^2.5.1",
     "crc": "^4.3.2",
+    "i18next": "^23.11.3",
+    "i18next-http-backend": "^2.5.1",
     "libsodium-wrappers-sumo": "^0.7.13",
     "lodash": "^4.17.21",
     "protobufjs": "^7.2.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-i18next": "^14.1.1",
+    "react-icons": "^5.1.0",
+    "react-redux": "^9.1.1",
+    "react-router-dom": "^6.23.0",
     "sonner": "^1.4.41"
   },
   "devDependencies": {
@@ -32,12 +40,15 @@
     "@typescript-eslint/eslint-plugin": "^7.2.0",
     "@typescript-eslint/parser": "^7.2.0",
     "@vitejs/plugin-react-swc": "^3.5.0",
-    "protobufjs-cli": "^1.1.1",
+    "autoprefixer": "^10.4.19",
     "eslint": "^8.57.0",
     "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-react": "^7.34.1",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.6",
+    "postcss": "^8.4.38",
+    "protobufjs-cli": "^1.1.1",
+    "tailwindcss": "^3.4.3",
     "typescript": "^5.2.2",
     "vite": "^5.2.0"
   }

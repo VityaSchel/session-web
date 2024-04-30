@@ -8,7 +8,7 @@ import { SessionKeyPairLibsodiumSumo as SessionKeyPair } from '../../../types/ke
 /**
  * Might throw
  */
-async function sessionGenerateKeyPair(seed: ArrayBuffer): Promise<SessionKeyPair> {
+function sessionGenerateKeyPair(seed: ArrayBuffer): SessionKeyPair {
   const ed25519KeyPair = sodium.crypto_sign_seed_keypair(new Uint8Array(seed))
   const x25519PublicKey = sodium.crypto_sign_ed25519_pk_to_curve25519(ed25519KeyPair.publicKey)
   // prepend version byte (coming from `processKeys(raw_keys)`)
@@ -28,10 +28,10 @@ async function sessionGenerateKeyPair(seed: ArrayBuffer): Promise<SessionKeyPair
   return x25519KeyPair
 }
 
-export const generateKeypair = async (
+export const generateKeypair = (
   mnemonic: string,
   mnemonicLanguage?: string
-): Promise<SessionKeyPair> => {
+): SessionKeyPair => {
   let seedHex = mnDecode(mnemonic, mnemonicLanguage)
   // handle shorter than 32 bytes seeds
   const privKeyHexLength = 32 * 2

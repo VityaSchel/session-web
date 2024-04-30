@@ -1,0 +1,13 @@
+{
+  "authorization": "Authorization",
+  "signInHeader": "Sign in with mnemonic",
+  "signIn": "Sign In",
+  "createAccountHeader": "Create a new SessionID",
+  "createAccount": "Create",
+  "mnemonic": "Mnemonic",
+  "goBack": "Go Back",
+  "continue": "Continue",
+  "generatedSessionID": "Your generated SessionID:",
+  "generatedMnemonic": "Mnemonic for login (keep it secret):",
+  "invalidMnemonic": "Invalid mnemonic, please input a valid mnemonic containing exactly 13 words"
+}
