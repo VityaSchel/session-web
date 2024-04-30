@@ -9,5 +9,6 @@
   "generatedSessionID": "Ваш сгенерированный SessionID:",
   "generatedMnemonic": "Мнемоника для входа (храните в тайне):",
   "continue": "Продолжить",
-  "invalidMnemonic": "Неправильная мнемоника, пожалуйста, введите мнемонику с ровно 13 словами"
+  "invalidMnemonic": "Неправильная мнемоника, пожалуйста, введите мнемонику с ровно 13 словами",
+  "accountAlreadyExists": "You have already signed in with this account"
 }

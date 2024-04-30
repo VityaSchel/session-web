@@ -10,12 +10,12 @@ export type Conversation = DirectMessagesConversation | ClosedGroupConversation 
 
 export type DirectMessagesConversation = {
   type: ConversationType.DirectMessages
-  displayName: string
+  displayName?: string
   displayImage?: Blob
 }
 
 export type ClosedGroupMember = {
-  displayName: string
+  displayName?: string
   profileImage?: Blob
 }
 

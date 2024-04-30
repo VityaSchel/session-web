@@ -7,7 +7,7 @@ import { generateKeypair, generateMnemonic } from '@/shared/api/account-manager'
 import { toHex } from '@/shared/api/utils/String'
 import { toast } from 'sonner'
 import { useAppDispatch } from '@/shared/store/hooks'
-import { setAuthorized } from '@/shared/store/slices/account'
+import { setAccount, setAuthorized } from '@/shared/store/slices/account'
 import * as Storage from '@/shared/api/storage'
 import { MnemonicInput } from '@/shared/ui/mnemonic-input'
 import { useNavigate } from 'react-router-dom'
@@ -52,10 +52,23 @@ function SignInScreen({ onGoBack }: {
   const handleLogin = async () => {
     try {
       const keypair = await generateKeypair(mnemonic)
-      if(keypair.ed25519KeyPair.publicKey.length !== 32) {
-        throw new Error('Invalid public key: ' + keypair.ed25519KeyPair.publicKey)
+      const sessionID = '05' + toHex(keypair.ed25519KeyPair.publicKey)
+      if (sessionID.length !== 66) {
+        throw new Error('Invalid public key: ' + sessionID)
       } else {
+        if(await Storage.db.accounts.get(sessionID)) {
+          toast.error(t('accountAlreadyExists'))
+          return
+        }
+
         await Storage.setIdentityKeypair(keypair)
+
+        const dbAccount: Storage.DbAccount = {
+          sessionID,
+        }
+        await Storage.db.accounts.put(dbAccount)
+
+        dispatch(setAccount(dbAccount))
         dispatch(setAuthorized(true))
         navigate('/', { replace: true })
       }
@@ -92,13 +105,25 @@ function SignUpScreen({ onGoBack }: {
   const { mnemonic, sessionID, keypair } = React.useMemo(() => {
     const mnemonic = generateMnemonic()
     const keypair = generateKeypair(mnemonic)
-    const sessionID = toHex(keypair.ed25519KeyPair.publicKey)
+    const sessionID = '05' + toHex(keypair.ed25519KeyPair.publicKey)
     return { mnemonic, sessionID, keypair }
   }, [])
 
   const handleContinue = async () => {
+    if(await Storage.db.accounts.get(sessionID)) {
+      toast.error(t('accountAlreadyExists'))
+      return
+    }
+
     await Storage.setIdentityKeypair(keypair)
     dispatch(setAuthorized(true))
+
+    const dbAccount: Storage.DbAccount = {
+      sessionID
+    }
+    await Storage.db.accounts.put(dbAccount)
+
+    dispatch(setAccount(dbAccount))
     navigate('/', { replace: true })
   }
 

@@ -1,6 +1,4 @@
-import { fromHex } from 'bytebuffer'
 import { SessionKeyPairLibsodiumSumo as SessionKeyPair } from '../../../types/keypairs'
-import { toHex } from '@/shared/api/utils/String'
 import { PubKey } from '@/shared/api/pubkey'
 import { HexKeyPair } from '@/shared/api/eckeypair'
 import Dexie, { Table } from 'dexie'
@@ -8,12 +6,12 @@ import { Conversation } from '@/shared/api/conversations'
 
 export type DbAccount = {
   sessionID: string
-  displayName: string
+  displayName?: string
   profileImage?: Blob
-  keypair: SessionKeyPair
 }
 
 export type DbConversation = {
+  accountSessionID: string
   id: string
 } & Conversation
 
@@ -32,7 +30,7 @@ export class SessionWebDatabase extends Dexie {
     super('session-web')
     this.version(1).stores({
       accounts: 'sessionID',
-      conversations: 'id',
+      conversations: 'id, accountSessionID',
       messages: 'hash, conversationID, read'
     })
   }
@@ -51,35 +49,14 @@ export type SessionKeyPairStorage = {
   pubKey: string
 }
 
-export async function getIdentityKeyPair(): Promise<SessionKeyPair | undefined> {
-  const value = window.localStorage.getItem('identity-key')
-  if (value) {
-    const keypair = JSON.parse(value) as SessionKeyPairStorage
-    return {
-      ed25519KeyPair: {
-        keyType: keypair.ed25519KeyPair.keyType,
-        privateKey: new Uint8Array(keypair.ed25519KeyPair.privateKey),
-        publicKey: new Uint8Array(keypair.ed25519KeyPair.publicKey)
-      },
-      privKey: fromHex(keypair.privKey).toArrayBuffer(),
-      pubKey: fromHex(keypair.pubKey).toArrayBuffer(),
-    } satisfies SessionKeyPair
-  } else {
-    return undefined
-  }
+let identityKeyPair: SessionKeyPair | undefined
+
+export function getIdentityKeyPair(): SessionKeyPair | undefined {
+  return identityKeyPair
 }
 
-export async function setIdentityKeypair(keypair: SessionKeyPair) {
-  const serialized = JSON.stringify({
-    ed25519KeyPair: {
-      keyType: keypair.ed25519KeyPair.keyType,
-      privateKey: Array.from(new Uint8Array(keypair.ed25519KeyPair.privateKey)),
-      publicKey: Array.from(new Uint8Array(keypair.ed25519KeyPair.publicKey))
-    },
-    privKey: toHex(keypair.privKey),
-    pubKey: toHex(keypair.pubKey)
-  } satisfies SessionKeyPairStorage)
-  window.localStorage.setItem('identity-key', serialized)
+export function setIdentityKeypair(keypair: SessionKeyPair) {
+  identityKeyPair = keypair
 }
 
 export function isMessageSeen(hash: string) {

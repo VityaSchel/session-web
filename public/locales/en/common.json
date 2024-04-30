@@ -9,5 +9,6 @@
   "continue": "Continue",
   "generatedSessionID": "Your generated SessionID:",
   "generatedMnemonic": "Mnemonic for login (keep it secret):",
-  "invalidMnemonic": "Invalid mnemonic, please input a valid mnemonic containing exactly 13 words"
+  "invalidMnemonic": "Invalid mnemonic, please input a valid mnemonic containing exactly 13 words",
+  "accountAlreadyExists": "You have already signed in with this account"
 }

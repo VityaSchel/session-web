@@ -10,11 +10,15 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { DbConversation, db } from '@/shared/api/storage'
 import cx from 'classnames'
 import { Avatar, AvatarFallback, AvatarImage } from '@/shared/ui/avatar'
+import { ConversationType } from '@/shared/api/conversations'
+import { useAppSelector } from '@/shared/store/hooks'
+import { selectAccount } from '@/shared/store/slices/account'
 
 export function ConversationsList({ isCollapsed }: {
   isCollapsed: boolean
 }) {
-  const conversations = useLiveQuery(() => db.conversations.toArray())
+  const account = useAppSelector(selectAccount)
+  const conversations = useLiveQuery(() => account ? db.conversations.where({ accountSessionID: account.sessionID }).toArray() : [], [account])
   const params = useParams<{ id: string }>()
   const pathname = useLocation().pathname
 
@@ -61,13 +65,21 @@ function ConversationItem({ selected, convo, isCollapsed }: {
   }, [convo.displayImage])
 
   const trimmedDisplayName = React.useMemo(() => {
-    const words = convo.displayName.split(' ')
-    if (words.length > 1) {
-      return words[0][0] + words[1][0]
+    if(convo.displayName) {
+      const words = convo.displayName.split(' ')
+      if (words.length > 1) {
+        return words[0][0] + words[1][0]
+      } else {
+        return convo.displayName.slice(0, 2)
+      }
     } else {
-      return convo.displayName.slice(0, 2)
+      if(convo.type === ConversationType.DirectMessages) {
+        return convo.id.slice(2, 4)
+      } else {
+        return convo.id.slice(0, 2)
+      }
     }
-  }, [convo.displayName])
+  }, [convo])
 
   React.useState(() => {
     async function getUnreadMessages() {
@@ -91,15 +103,15 @@ function ConversationItem({ selected, convo, isCollapsed }: {
               'dark:bg-muted dark:text-muted-foreground dark:hover:bg-muted dark:hover:text-white'
             )}
           >
-            <Avatar>
+            <Avatar className='w-[24px] h-[24px] text-neutral-400 font-semibold text-xs'>
               {displayImage && <AvatarImage src={displayImage} alt={convo.displayName} />}
               <AvatarFallback>{trimmedDisplayName.toUpperCase()}</AvatarFallback>
             </Avatar>
-            <span className="sr-only">{convo.displayName}</span>
+            <span className="sr-only">{convo.displayName || convo.id}</span>
           </Link>
         </TooltipTrigger>
         <TooltipContent side="right" className="flex items-center gap-4">
-          {convo.displayName}
+          {convo.displayName || convo.id}
           {newMessages > 0 && (
             <span className="ml-auto text-muted-foreground">
               {newMessages}
@@ -117,12 +129,12 @@ function ConversationItem({ selected, convo, isCollapsed }: {
           'justify-start'
         )}
       >
-        <Avatar>
-          {displayImage && <AvatarImage src={displayImage} alt={convo.displayName} />}
+        <Avatar className='w-[24px] h-[24px] text-neutral-400 font-semibold text-xs'>
+          {displayImage && <AvatarImage src={displayImage} alt={convo.displayName || convo.id} />}
           <AvatarFallback>{trimmedDisplayName.toUpperCase()}</AvatarFallback>
         </Avatar>
-        {convo.displayName}
-          {newMessages > 0 && (
+        {convo.displayName || convo.id}
+        {newMessages > 0 && (
           <span
             className={cx(
               'ml-auto',
