@@ -6,6 +6,7 @@ import { ConversationPage } from '@/pages/conversation.tsx'
 import '@/shared/styles/global.css'
 import {
   createBrowserRouter,
+  Navigate,
   RouterProvider,
 } from 'react-router-dom'
 import i18next from 'i18next'
@@ -40,12 +41,16 @@ const router = createBrowserRouter([
     path: '/conversation/:id',
     element: <ProtectedRoute><ConversationPage /></ProtectedRoute>,
   },
+  {
+    path: '*',
+    element: <Navigate to='/' />,
+  },
 ])
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <Provider store={store}>
-      <div>
+      <div className='dark'>
         <RouterProvider router={router} />
         <Toaster richColors />
       </div>

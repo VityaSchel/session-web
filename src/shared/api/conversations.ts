@@ -1,3 +1,5 @@
+import * as Storage from './storage'
+
 export enum ConversationType {
   DirectMessages,
   ClosedGroup,
@@ -8,20 +10,34 @@ export type Conversation = DirectMessagesConversation | ClosedGroupConversation 
 
 export type DirectMessagesConversation = {
   type: ConversationType.DirectMessages
+  displayName: string
+  displayImage?: Blob
+}
 
+export type ClosedGroupMember = {
+  displayName: string
+  profileImage?: Blob
 }
 
 export type ClosedGroupConversation = {
   type: ConversationType.ClosedGroup
-  members: any[]
+  members: ClosedGroupMember[]
+  displayName: string
+  displayImage?: Blob
 }
 
 export type OpenGroupConversation = {
   type: ConversationType.OpenGroup
+  displayName: string
+  displayImage?: Blob
 }
 
-export function getConversation(key: string): Conversation {
-  return {
-    type: ConversationType.DirectMessages
-  }
+export async function getConversation(key: string): Promise<Conversation | null> {
+  const conversation = await Storage.db.conversations.get(key)
+  return conversation ?? null
+}
+
+export async function getConversations(): Promise<Conversation[]> {
+  const conversations = await Storage.db.conversations.toArray()
+  return conversations
 }

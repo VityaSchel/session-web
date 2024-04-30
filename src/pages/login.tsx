@@ -1,5 +1,5 @@
 import React from 'react'
-import { Button } from '@/shared/ui/button'
+import { Button } from '@/shared/ui/session-button'
 import { useTranslation } from 'react-i18next'
 import { MdArrowRightAlt } from 'react-icons/md'
 import { TextField } from '@/shared/ui/text-field'
@@ -86,12 +86,21 @@ function SignUpScreen({ onGoBack }: {
   onGoBack: () => void
 }) {
   const { t } = useTranslation()
-  const { mnemonic, sessionID } = React.useMemo(() => {
+  const dispatch = useAppDispatch()
+  const navigate = useNavigate()
+
+  const { mnemonic, sessionID, keypair } = React.useMemo(() => {
     const mnemonic = generateMnemonic()
     const keypair = generateKeypair(mnemonic)
     const sessionID = toHex(keypair.ed25519KeyPair.publicKey)
-    return { mnemonic, sessionID }
+    return { mnemonic, sessionID, keypair }
   }, [])
+
+  const handleContinue = async () => {
+    await Storage.setIdentityKeypair(keypair)
+    dispatch(setAuthorized(true))
+    navigate('/', { replace: true })
+  }
 
   return (
     <div className='flex flex-col items-center gap-6'>
@@ -110,7 +119,7 @@ function SignUpScreen({ onGoBack }: {
       </div>
       <div className='flex gap-2'>
         <Button onClick={onGoBack}>{t('goBack')}</Button>
-        <Button>{t('continue')} <MdArrowRightAlt /></Button>
+        <Button onClick={handleContinue}>{t('continue')} <MdArrowRightAlt /></Button>
       </div>
     </div>
   )

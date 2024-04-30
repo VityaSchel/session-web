@@ -3,6 +3,43 @@ import { SessionKeyPairLibsodiumSumo as SessionKeyPair } from '../../../types/ke
 import { toHex } from '@/shared/api/utils/String'
 import { PubKey } from '@/shared/api/pubkey'
 import { HexKeyPair } from '@/shared/api/eckeypair'
+import Dexie, { Table } from 'dexie'
+import { Conversation } from '@/shared/api/conversations'
+
+export type DbAccount = {
+  sessionID: string
+  displayName: string
+  profileImage?: Blob
+  keypair: SessionKeyPair
+}
+
+export type DbConversation = {
+  id: string
+} & Conversation
+
+export type DbMessage = {
+  hash: string
+  conversationID: string
+  read: boolean
+}
+
+export class SessionWebDatabase extends Dexie {
+  accounts!: Table<DbAccount>
+  conversations!: Table<DbConversation>
+  messages!: Table<DbMessage>
+
+  constructor() {
+    super('session-web')
+    this.version(1).stores({
+      accounts: 'sessionID',
+      conversations: 'id',
+      messages: 'hash, conversationID, read'
+    })
+  }
+}
+
+
+export const db = new SessionWebDatabase()
 
 export type SessionKeyPairStorage = {
   ed25519KeyPair: {
