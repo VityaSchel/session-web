@@ -1,16 +1,18 @@
 import React from 'react'
-import { Button } from '@/shared/ui/session-button'
+import { Button as SessionButton } from '@/shared/ui/session-button'
 import { useTranslation } from 'react-i18next'
 import { MdArrowRightAlt } from 'react-icons/md'
-import { TextField } from '@/shared/ui/text-field'
 import { generateKeypair, generateMnemonic } from '@/shared/api/account-manager'
 import { toHex } from '@/shared/api/utils/String'
 import { toast } from 'sonner'
-import { useAppDispatch } from '@/shared/store/hooks'
-import { setAccount, setAuthorized } from '@/shared/store/slices/account'
+import { useAppDispatch, useAppSelector } from '@/shared/store/hooks'
+import { selectAuthState, setAccount, setAuthorized } from '@/shared/store/slices/account'
 import * as Storage from '@/shared/api/storage'
 import { MnemonicInput } from '@/shared/ui/mnemonic-input'
 import { useNavigate } from 'react-router-dom'
+import { Button } from '@/shared/ui/button'
+import { ArrowLeftIcon } from 'lucide-react'
+import cx from 'classnames'
 
 export function LoginPage() {
   const [screen, setScreen] = React.useState<'main' | 'signin' | 'signup'>('main')
@@ -30,13 +32,24 @@ function MainScreen({ onSignIn, onSignUp }: {
   onSignIn: () => void
   onSignUp: () => void
 }) {
+  const authorized = useAppSelector(selectAuthState)
   const { t } = useTranslation()
+  const navigate = useNavigate()
   
   return (
     <div className='flex flex-col items-center gap-2'>
-      <h1 className='font-bold text-2xl mb-4'>{t('authorization')}</h1>
-      <Button className='w-full' onClick={onSignIn}>{t('signInHeader')}</Button>
-      <Button className='w-full' onClick={onSignUp}>{t('createAccountHeader')}</Button>
+      <div className='flex gap-2 items-center mb-4 w-full'>
+        {authorized && (
+          <Button onClick={() => navigate('/')} size='icon' variant='ghost' className='shrink-0'>
+            <ArrowLeftIcon size={20} />
+          </Button>
+        )}
+        <h1 className={cx('font-bold text-2xl w-full', {
+          'text-center': !authorized
+        })}>{t('authorization')}</h1>
+      </div>
+      <SessionButton className='w-full' onClick={onSignIn}>{t('signInHeader')}</SessionButton>
+      <SessionButton className='w-full' onClick={onSignUp}>{t('createAccountHeader')}</SessionButton>
     </div>
   )
 }
@@ -88,8 +101,8 @@ function SignInScreen({ onGoBack }: {
         className='w-full'
       />
       <div className='flex gap-2'>
-        <Button onClick={onGoBack}>{t('goBack')}</Button>
-        <Button onClick={handleLogin}>{t('signIn')} <MdArrowRightAlt /></Button>
+        <SessionButton onClick={onGoBack}>{t('goBack')}</SessionButton>
+        <SessionButton onClick={handleLogin}>{t('signIn')} <MdArrowRightAlt /></SessionButton>
       </div>
     </div>
   )
@@ -133,7 +146,7 @@ function SignUpScreen({ onGoBack }: {
       <div className='flex flex-col gap-2 items-center'>
         <span>{t('generatedSessionID')}</span>
         <span className='font-mono p-4 bg-neutral-800 border border-neutral-600'>
-          05{sessionID}
+          {sessionID}
         </span>
       </div>
       <div className='flex flex-col gap-2 items-center'>
@@ -143,8 +156,8 @@ function SignUpScreen({ onGoBack }: {
         </span>
       </div>
       <div className='flex gap-2'>
-        <Button onClick={onGoBack}>{t('goBack')}</Button>
-        <Button onClick={handleContinue}>{t('continue')} <MdArrowRightAlt /></Button>
+        <SessionButton onClick={onGoBack}>{t('goBack')}</SessionButton>
+        <SessionButton onClick={handleContinue}>{t('continue')} <MdArrowRightAlt /></SessionButton>
       </div>
     </div>
   )

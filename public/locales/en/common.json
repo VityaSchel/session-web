@@ -10,5 +10,12 @@
   "generatedSessionID": "Your generated SessionID:",
   "generatedMnemonic": "Mnemonic for login (keep it secret):",
   "invalidMnemonic": "Invalid mnemonic, please input a valid mnemonic containing exactly 13 words",
-  "accountAlreadyExists": "You have already signed in with this account"
+  "accountAlreadyExists": "You have already signed in with this account",
+  "addNewAccount": "Add new account",
+  "logout": "Logout from this account",
+  "noConversations": "There will be your conversations",
+  "logoutConfirmation": "Are you sure you want to log out?",
+  "logoutConfirmationDescription": "All your conversations will be deleted from the local database, you will be able to restore only messages for the last 14 days when you log in next time",
+  "confirm": "Confirm",
+  "cancel": "Cancel"
 }

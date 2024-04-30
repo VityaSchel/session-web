@@ -16,6 +16,7 @@ export type DbConversation = {
 } & Conversation
 
 export type DbMessage = {
+  accountSessionID: string
   hash: string
   conversationID: string
   read: boolean
@@ -31,7 +32,7 @@ export class SessionWebDatabase extends Dexie {
     this.version(1).stores({
       accounts: 'sessionID',
       conversations: 'id, accountSessionID',
-      messages: 'hash, conversationID, read'
+      messages: 'hash, conversationID, read, accountSessionID'
     })
   }
 }

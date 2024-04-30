@@ -1,5 +1,5 @@
 import React from 'react'
-import { buttonVariants } from '@/shared/ui/button'
+import { Button, buttonVariants } from '@/shared/ui/button'
 import {
   Tooltip,
   TooltipContent,
@@ -13,6 +13,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/shared/ui/avatar'
 import { ConversationType } from '@/shared/api/conversations'
 import { useAppSelector } from '@/shared/store/hooks'
 import { selectAccount } from '@/shared/store/slices/account'
+import { useTranslation } from 'react-i18next'
+import { SquarePenIcon } from 'lucide-react'
 
 export function ConversationsList({ isCollapsed }: {
   isCollapsed: boolean
@@ -21,6 +23,7 @@ export function ConversationsList({ isCollapsed }: {
   const conversations = useLiveQuery(() => account ? db.conversations.where({ accountSessionID: account.sessionID }).toArray() : [], [account])
   const params = useParams<{ id: string }>()
   const pathname = useLocation().pathname
+  const { t } = useTranslation()
 
   const selectedConvo: DbConversation | null = React.useMemo(() => {
     if (!conversations) return null
@@ -33,16 +36,33 @@ export function ConversationsList({ isCollapsed }: {
   return (
     <div
       data-collapsed={isCollapsed}
-      className="group flex flex-col gap-4 py-2 data-[collapsed=true]:py-2"
+      className="group flex flex-col gap-4 py-2 data-[collapsed=true]:py-2 flex-1"
     >
-      <nav className="grid gap-1 px-2 group-[[data-collapsed=true]]:justify-center group-[[data-collapsed=true]]:px-2">
-        {conversations?.map(convo => 
-          <ConversationItem 
-            key={convo.id}
-            selected={selectedConvo ? convo.id === selectedConvo.id : false}
-            convo={convo} 
-            isCollapsed={isCollapsed} 
-          />
+      <nav className={cx('grid gap-1 px-2 group-[[data-collapsed=true]]:px-2', {
+        'h-full flex': conversations && conversations.length === 0,
+        'items-center justify-center': conversations && conversations.length === 0 && !isCollapsed,
+      })}>
+        {conversations !== undefined && (
+          conversations.length ? (
+            conversations.map(convo =>
+              <ConversationItem
+                key={convo.id}
+                selected={selectedConvo ? convo.id === selectedConvo.id : false}
+                convo={convo}
+                isCollapsed={isCollapsed}
+              />
+            )
+          ) : (
+            isCollapsed ? (
+              <Button size='icon' variant='secondary' className='w-full'>
+                <SquarePenIcon size={16} />
+              </Button>
+            ) : (
+              <p className="text-muted-foreground text-center flex-1">
+                {t('noConversations')}
+              </p>
+            )
+          )
         )}
       </nav>
     </div>

@@ -19,7 +19,7 @@ export const accountSlice = createSlice({
     setAuthorized: (state, action: PayloadAction<boolean>) => {
       state.authorized = action.payload
     },
-    setAccount: (state, action: PayloadAction<DbAccount>) => {
+    setAccount: (state, action: PayloadAction<DbAccount | null>) => {
       state.dbAccount = action.payload
     }
   },

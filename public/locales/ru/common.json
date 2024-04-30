@@ -10,5 +10,12 @@
   "generatedMnemonic": "Мнемоника для входа (храните в тайне):",
   "continue": "Продолжить",
   "invalidMnemonic": "Неправильная мнемоника, пожалуйста, введите мнемонику с ровно 13 словами",
-  "accountAlreadyExists": "You have already signed in with this account"
+  "accountAlreadyExists": "You have already signed in with this account",
+  "addNewAccount": "Добавить новый аккаунт",
+  "logout": "Выйти из этого аккаунта",
+  "noConversations": "Здесь будут ваши диалоги",
+  "logoutConfirmation": "Вы уверены, что хотите выйти?",
+  "logoutConfirmationDescription": "Все ваши диалоги будут удалены из локальной базы данных, при следующем входе вы сможете восстановить лишь сообщения за последние 14 дней",
+  "confirm": "Подтвердить",
+  "cancel": "Отмена"
 }
