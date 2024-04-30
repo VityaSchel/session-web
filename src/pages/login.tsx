@@ -9,6 +9,8 @@ import { toast } from 'sonner'
 import { useAppDispatch } from '@/shared/store/hooks'
 import { setAuthorized } from '@/shared/store/slices/account'
 import * as Storage from '@/shared/api/storage'
+import { MnemonicInput } from '@/shared/ui/mnemonic-input'
+import { useNavigate } from 'react-router-dom'
 
 export function LoginPage() {
   const [screen, setScreen] = React.useState<'main' | 'signin' | 'signup'>('main')
@@ -45,6 +47,7 @@ function SignInScreen({ onGoBack }: {
   const [mnemonic, setMnemonic] = React.useState('')
   const { t } = useTranslation()
   const dispatch = useAppDispatch()
+  const navigate = useNavigate()
 
   const handleLogin = async () => {
     try {
@@ -54,20 +57,21 @@ function SignInScreen({ onGoBack }: {
       } else {
         await Storage.setIdentityKeypair(keypair)
         dispatch(setAuthorized(true))
+        navigate('/', { replace: true })
       }
     } catch(e) {
       console.error(e)
       toast.error(t('invalidMnemonic'))
     }
   }
+            
 
   return (
-    <div className='flex flex-col items-center gap-4'>
+    <div className='flex flex-col items-center gap-4 w-[400px] max-w-full'>
       <h1 className='font-bold text-2xl mb-2'>{t('signInHeader')}</h1>
-      <TextField 
+      <MnemonicInput 
         value={mnemonic}
-        onChange={e => setMnemonic(e.target.value)}
-        placeholder={t('mnemonic')}
+        onChange={setMnemonic}
         className='w-full'
       />
       <div className='flex gap-2'>
@@ -95,7 +99,7 @@ function SignUpScreen({ onGoBack }: {
       <div className='flex flex-col gap-2 items-center'>
         <span>{t('generatedSessionID')}</span>
         <span className='font-mono p-4 bg-neutral-800 border border-neutral-600'>
-          {sessionID}
+          05{sessionID}
         </span>
       </div>
       <div className='flex flex-col gap-2 items-center'>

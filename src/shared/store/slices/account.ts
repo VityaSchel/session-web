@@ -21,4 +21,6 @@ export const accountSlice = createSlice({
 
 export const { setAuthorized } = accountSlice.actions
 
+export const selectAuthState = (state: { account: AccountState }) => state.account.authorized
+
 export default accountSlice.reducer

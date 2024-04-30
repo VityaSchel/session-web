@@ -14,6 +14,7 @@ import { initReactI18next } from 'react-i18next'
 import { Provider } from 'react-redux'
 import { store } from '@/shared/store'
 import { Toaster } from 'sonner'
+import { ProtectedRoute } from '@/widgets/protected-route'
 
 i18next
   .use(initReactI18next)
@@ -29,7 +30,7 @@ i18next
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <HomePage />,
+    element: <ProtectedRoute><HomePage /></ProtectedRoute>,
   },
   {
     path: '/login',
@@ -37,7 +38,7 @@ const router = createBrowserRouter([
   },
   {
     path: '/conversation/:id',
-    element: <ConversationPage />,
+    element: <ProtectedRoute><ConversationPage /></ProtectedRoute>,
   },
 ])
 
