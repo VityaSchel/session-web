@@ -31,5 +31,6 @@
   "recipient": "Получатель",
   "aboutOns": "Просмотр и регистрация ONS имен",
   "onsInvalid": "Не удалось найти ONS имя",
-  "unsupportedLegacyOns": "Этот ONS имеет старый формат, который пока не поддерживается"
+  "unsupportedLegacyOns": "Этот ONS имеет старый формат, который пока не поддерживается",
+  "indexedDbNotAvailable": "Ваш браузер не поддерживает IndexedDB, поэтому данные не будут сохранены при перезагрузке страницы. Пожалуйста, используйте другой браузер или разрешите использование IndexedDB в настройках (dom.indexedDB.privateBrowsing.enabled = true на странице about:config для Tor)."
 }

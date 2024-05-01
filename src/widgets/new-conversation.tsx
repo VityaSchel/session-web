@@ -53,10 +53,7 @@ export function NewConversation() {
     }
 
     if (sessionID) {
-      const existingConvo = await db.conversations.get({ accountSessionID: account.sessionID, id: recipient })
-      if (existingConvo) {
-        navigate('/conversation/' + sessionID)
-      } else {
+      if (!await db.conversations.get({ accountSessionID: account.sessionID, id: recipient })) {
         await db.conversations.add({
           accountSessionID: account.sessionID,
           id: sessionID,
@@ -65,6 +62,7 @@ export function NewConversation() {
           type: ConversationType.DirectMessages
         })
       }
+      navigate('/conversation/' + sessionID)
     }
   }
 

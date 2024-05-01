@@ -39,7 +39,7 @@ export async function getNewMessages(swarm: string): Promise<NewMessage[]> {
   const newMessages: RetrieveMessageItem[] = []
   for (const msg of receivedMessages) {
     if (!await Storage.isMessageSeen(msg.hash)) {
-      Storage.setMessageSeen(msg.hash)
+      await Storage.setMessageSeen(msg.hash)
       newMessages.push(msg)
     }
   }

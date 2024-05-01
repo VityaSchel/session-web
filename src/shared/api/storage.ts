@@ -4,6 +4,7 @@ import { HexKeyPair } from '@/shared/api/eckeypair'
 import Dexie, { Table } from 'dexie'
 import { Conversation } from '@/shared/api/conversations'
 import { toHex } from '@/shared/api/utils/String'
+import { indexedDB as fakeIndexedDB, IDBKeyRange as fakeIDBKeyRange } from 'fake-indexeddb'
 
 type BooleanAsNumber = 0 | 1
 
@@ -57,7 +58,8 @@ export class SessionWebDatabase extends Dexie {
   messages_seen!: Table<DbMessageSeen>
 
   constructor() {
-    super('session-web')
+    console.log(window.shimmedIndexedDb, 'window.shimmedIndexedDb')
+    super('session-web', window.shimmedIndexedDb ? { indexedDB: fakeIndexedDB, IDBKeyRange: fakeIDBKeyRange } : undefined)
     this.version(1).stores({
       accounts: 'sessionID',
       conversations: 'id, accountSessionID, [id+accountSessionID], lastMessageTime',
@@ -97,6 +99,11 @@ export async function isMessageSeen(hash: string) {
 export async function setMessageSeen(hash: string) {
   const keypair = getIdentityKeyPair()
   if (!keypair) throw new Error('No identity keypair found')
+  console.log({
+    hash,
+    receivedAt: Date.now(),
+    accountSessionID: toHex(keypair.pubKey)
+  })
   await db.messages_seen.add({ 
     hash, 
     receivedAt: Date.now(), 
