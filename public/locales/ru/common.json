@@ -19,5 +19,7 @@
   "confirm": "Подтвердить",
   "cancel": "Отмена",
   "error": "В Session web произошла ошибка, и теперь страницу необходимо перезагрузить.",
-  "messageOutgoingPrefix": "Вы: "
+  "messageOutgoingPrefix": "Вы: ",
+  "inboxTitle": "Сообщения",
+  "today": "Today"
 }

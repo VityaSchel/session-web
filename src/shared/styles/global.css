@@ -8,6 +8,7 @@ body {
   color: #fff;
   color-scheme: dark;
   min-height: 100lvh;
+  text-rendering: geometricPrecision;
 }
 
 #root, #root > * {
@@ -87,6 +88,8 @@ iframe {
     --border: 0 0% 14.9%;
     --input: 0 0% 14.9%;
     --ring: 0 0% 83.1%;
+
+    --conversation-bubble: #292929;
   }
 }
 

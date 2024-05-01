@@ -24,6 +24,7 @@ export type DbConversation = {
 } & Conversation
 
 export type DbMessage = {
+  direction: 'incoming' | 'outgoing'
   accountSessionID: string
   hash: string
   conversationID: string
@@ -55,7 +56,7 @@ export class SessionWebDatabase extends Dexie {
     this.version(1).stores({
       accounts: 'sessionID',
       conversations: 'id, accountSessionID, [id+accountSessionID], lastMessageTime',
-      messages: 'hash, conversationID, read, accountSessionID, [conversationID+accountSessionID], [conversationID+read]',
+      messages: 'hash, conversationID, read, accountSessionID, [conversationID+accountSessionID], [conversationID+accountSessionID+read]',
       users: 'sessionID',
       messages_seen: 'hash, receivedAt'
     })

@@ -26,14 +26,13 @@ import { generateKeypair } from '@/shared/api/account-manager'
 import { ErrorBoundary } from '@/app/error-boundary'
 import { poll } from '@/shared/poll'
 import { NotFoundPage } from '@/pages/not-found-page'
-import sodium from 'libsodium-wrappers-sumo'
 import { SodiumLoader } from '@/app/sodium-loader'
 
 i18next
   .use(initReactI18next)
   .use(Backend)
   .init({
-    lng: 'en',
+    lng: navigator.language || 'en',
     backend: {
       loadPath: '/locales/{{lng}}/{{ns}}.json',
     },

@@ -7,7 +7,7 @@ export function ConversationPreviewMessage({ message }: {
   const { t } = useTranslation()
   
   return (
-    <div>
+    <div className='text-ellipsis overflow-hidden'>
       <span className='text-muted-foreground'>
         {message.direction === 'outgoing' && t('messageOutgoingPrefix')}
       </span>{message.textContent}

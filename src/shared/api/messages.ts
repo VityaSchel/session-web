@@ -16,7 +16,16 @@ import { concatUInt8Array } from '@/shared/api/crypto'
 import { removeMessagePadding } from '@/shared/api/buffer-padding'
 import { getAllCachedECKeyPair } from '@/shared/api/closed-groups'
 
-export async function getNewMessages(node: string) {
+export type NewMessage = {
+  from: string;
+  to: string | undefined;
+  envelope: SignalService.Envelope;
+  content: SignalService.Content;
+  sentAtTimestamp: number;
+  hash: string;
+}
+
+export async function getNewMessages(node: string): Promise<NewMessage[]> {
   const keypair = await UserUtils.getIdentityKeyPair()
   if (!keypair) throw new Error('No identity keypair found')
   const results = await pollSnode({
@@ -45,16 +54,22 @@ export async function getNewMessages(node: string) {
       const envelope = SignalService.Envelope.decode(message.body)
 
       if (envelope.content && envelope.content.length > 0) {
-        return await decryptNewMessage(envelope, content.messageHash)
+        const decrypted = await decryptNewMessage(envelope, content.messageHash)
+        if(!decrypted) return null
+        return {
+          ...decrypted,
+          from: decrypted?.envelope.source,
+          to: decrypted?.content.dataMessage?.syncTarget || undefined,
+        }
       } else {
         return null
       }
     })
   )
 
-  const messages = processedMessages.filter(Boolean) as ProcessedMessage[]
+  const messages = processedMessages.filter(Boolean) as NewMessage[]
 
-  return messages
+  return messages.sort((a, b) => a.sentAtTimestamp - b.sentAtTimestamp)
 }
 
 type WebSocketContent = null | {

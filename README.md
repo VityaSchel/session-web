@@ -4,6 +4,29 @@ Experimental project running [Session messenger](https://getsession.org) in brow
 
 **This is rather a technical challenge for me, rather than a stable client**
 
+- [X] Receiving messages
+- [ ] Sending messages
+  - [ ] Attachments support
+- [ ] Conversations pinning
+- [ ] Closed groups
+- [ ] Open groups (communities)
+- [ ] Blocked list
+- [ ] Profile editing
+- [X] Multiaccount
+- [X] Localization
+  - [X] English
+  - [X] Russian
+  - [ ] Option to change UI language
+- [ ] PWA
+  - [ ] Offline support
+  - [ ] Updates
+- [ ] Push notifications
+  - [ ] Notifications settings
+- [ ] Calls
+- [ ] Custom proxy server support
+- [ ] Direct nodes connection support
+  - [ ] Onion routing
+
 ## How it works?
 
 All your confidential data (private keys, decrypted messages etc) never left your device. We need a proxy server though for 2 reasons:

@@ -53,6 +53,9 @@ module.exports = {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))',
         },
+        conversation: {
+          bubble: 'var(--conversation-bubble)',
+        }
       },
       borderRadius: {
         lg: 'var(--radius)',

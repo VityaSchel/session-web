@@ -25,21 +25,27 @@ export async function poll() {
 
   const messages = await getNewMessages(targetNode)
   const accountSessionID = account.sessionID
+  
   db.messages.bulkAdd(
     messages
       .filter(msg => msg.content.dataMessage)
-      .map(msg => ({ 
-        conversationID: msg.envelope.source,
-        hash: msg.hash,
-        accountSessionID,
-        textContent: msg.content.dataMessage!.body ?? null,
-        read: Number(false) as 0 | 1,
-        timestamp: msg.sentAtTimestamp
-      }))
+      .map(msg => { 
+        const direction = msg.to ? 'outgoing' : 'incoming'
+        return {
+          direction,
+          conversationID: msg.to ?? msg.envelope.source,
+          hash: msg.hash,
+          accountSessionID,
+          textContent: msg.content.dataMessage!.body ?? null,
+          read: Number(direction === 'outgoing') as 0 | 1,
+          timestamp: msg.sentAtTimestamp
+        }
+      }
+    )
   )
   
   const profilesUnfiltered = _.uniqBy(messages.map(msg => ({
-    sessionID: msg.envelope.source,
+    sessionID: msg.to ?? msg.envelope.source,
     displayName: msg.content.dataMessage?.profile?.displayName ?? undefined,
     // profileImage: msg.content.dataMessage?.profile?.profilePicture,
   } satisfies DbUser)), 'sessionID')
@@ -53,24 +59,25 @@ export async function poll() {
 
 
   for(const msg of messages) {
-    const convoExists = await db.conversations.get({ id: msg.envelope.source, accountSessionID: account.sessionID })
+    const conversationID = msg.to ?? msg.envelope.source
+    const convoExists = await db.conversations.get({ id: conversationID, accountSessionID: account.sessionID })
     if (!convoExists) {
       await db.conversations.add({
         type: ConversationType.DirectMessages,
         accountSessionID,
-        id: msg.envelope.source,
+        id: conversationID,
         displayName: msg.content.dataMessage?.profile?.displayName ?? undefined,
         // profileImage: msg.content.dataMessage?.profile?.profilePicture,
         lastMessage: {
-          direction: msg.envelope.source === account.sessionID ? 'outgoing' : 'incoming',
+          direction: msg.to ? 'outgoing' : 'incoming',
           textContent: msg.content.dataMessage?.body ?? null
         },
         lastMessageTime: msg.sentAtTimestamp,
       })
     } else {
-      await db.conversations.update(msg.envelope.source, {
+      await db.conversations.update(conversationID, {
         lastMessage: {
-          direction: msg.envelope.source === account.sessionID ? 'outgoing' : 'incoming',
+          direction: msg.to ? 'outgoing' : 'incoming',
           textContent: msg.content.dataMessage?.body ?? null
         },
         lastMessageTime: msg.sentAtTimestamp

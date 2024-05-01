@@ -40,7 +40,7 @@ export function ConversationsList({ isCollapsed }: {
       data-collapsed={isCollapsed}
       className="group flex flex-col gap-4 py-2 data-[collapsed=true]:py-2 flex-1"
     >
-      <nav className={cx('grid gap-1 px-2 group-[[data-collapsed=true]]:px-2', {
+      <nav className={cx('gap-1 px-2 group-[[data-collapsed=true]]:px-2 flex flex-col', {
         'h-full flex': conversations && conversations.length === 0,
         'items-center justify-center': conversations && conversations.length === 0 && !isCollapsed,
       })}>
@@ -76,8 +76,10 @@ function ConversationItem({ selected, convo, isCollapsed }: {
   convo: DbConversation
   isCollapsed: boolean
 }) {
-  const newMessages = useLiveQuery(() => 
-    db.messages.where({ conversationID: convo.id, read: Number(false) as 0 | 1 }).count(), 
+  const account = useAppSelector(selectAccount)
+  const newMessages = useLiveQuery(() => account
+    ? db.messages.where({ conversationID: convo.id, accountSessionID: account.sessionID, read: Number(false) as 0 | 1 }).count()
+    : 0,
     [convo.id]
   )
 
@@ -139,7 +141,7 @@ function ConversationItem({ selected, convo, isCollapsed }: {
     ) : (
       <Link
         to={`/conversation/${convo.id}`}
-        className={cx(
+        className={cx('max-w-full',
           buttonVariants({ variant: variant, size: 'sm' }),
           variant === 'default' &&
           'dark:bg-muted dark:text-white dark:hover:bg-muted dark:hover:text-white',
@@ -150,8 +152,8 @@ function ConversationItem({ selected, convo, isCollapsed }: {
           {displayImage && <AvatarImage src={displayImage} alt={convo.displayName || convo.id} />}
           <AvatarFallback>{trimmedDisplayName.toUpperCase()}</AvatarFallback>
         </Avatar>
-        <div className='flex flex-col gap-1'>
-          <span className='font-medium'>{convo.displayName || convo.id}</span>
+        <div className='flex flex-col gap-1 flex-1 min-w-0'>
+          <span className='font-medium text-ellipsis overflow-hidden'>{convo.displayName || convo.id}</span>
           <span className='font-normal'>
             <ConversationPreviewMessage message={convo.lastMessage} />
           </span>

@@ -8,6 +8,8 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useAppSelector } from '@/shared/store/hooks'
 import { selectAccount } from '@/shared/store/slices/account'
+import { formatSessionID } from '@/shared/utils'
+import { Conversation } from '@/widgets/conversation'
 
 export function ConversationPage() {
   const account = useAppSelector(selectAccount)
@@ -16,26 +18,35 @@ export function ConversationPage() {
 
   React.useEffect(() => {
     async function getConversation() {
-      if (!await Storage.db.conversations.get(conversationID)) {
+      if (!account) return
+
+      if (!await Storage.db.conversations.where({ id: conversationID, accountSessionID: account.sessionID })) {
         navigate('/')
+      } else {
+        
+        const messages = await Storage.db.messages.where({ conversationID, accountSessionID: account.sessionID, read: Number(false) as 0 | 1 }).primaryKeys()
+        await Storage.db.messages.bulkUpdate(messages.map(hash => ({
+          key: hash,
+          changes: {
+            read: Number(true) as 0 | 1
+          }
+        })))
       }
     }
 
     getConversation()
-  }, [conversationID, navigate])
+  }, [conversationID, navigate, account])
 
-  const messages = useLiveQuery(() => account
-    ? Storage.db.messages.where({ accountSessionID: account.sessionID, conversationID }).toArray()
-    : [], 
-    [account, conversationID]
-  )
+  const conversation = useLiveQuery(() => Storage.db.conversations.get(conversationID), [conversationID])
 
   return (
     <PageWrapper>
       <LeftPanel />
-      <ResizablePanel>
+      <ResizablePanel className='flex flex-col'>
         <div className="flex items-center px-4 py-2 h-14">
-          <h1 className="text-xl font-bold">Conversation</h1>
+          <h1 className="text-xl font-bold">
+            {conversation && (conversation.displayName || formatSessionID(conversation.id, 'long'))}
+          </h1>
         </div>
         <Separator />
         {/* <div className="bg-background/95 p-4 backdrop-blur supports-[backdrop-filter]:bg-background/60"> */}
@@ -47,20 +58,8 @@ export function ConversationPage() {
               </div>
             </form> */}
         {/* </div> */}
-        <div className='flex flex-col flex-1 p-4 gap-1'>
-          {messages?.map(msg => (
-            <div key={msg.hash} className='flex gap-2'>
-              <span>{Intl.DateTimeFormat('ru-RU', {
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
-                month: 'numeric',
-                day: 'numeric',
-                year: 'numeric'
-              }).format(msg.timestamp)}</span>
-              <div>{msg.textContent}</div>
-            </div>
-          ))}
+        <div className='overflow-auto flex-1'>
+          {conversationID !== undefined && <Conversation conversationID={conversationID} />}
         </div>
       </ResizablePanel>
     </PageWrapper>
