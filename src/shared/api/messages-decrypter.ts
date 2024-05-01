@@ -1,12 +1,8 @@
-import { pollSnode } from '@/shared/api/snodes'
-import { SnodeNamespaces } from '../../../types/namespaces'
-import * as UserUtils from '@/shared/api/utils/User'
-import { toHex } from '@/shared/api/utils/String'
-import { RetrieveMessageItem } from '../../../types/retrieve-message-item'
-import _, { toNumber } from 'lodash'
-import * as Storage from './storage'
+// CREDIT: OXEN, Session-Desktop
+// github.com/oxen-io/session-desktop
+
+import { toNumber } from 'lodash'
 import * as StringUtils from './utils/String'
-import { SignalService } from '@/shared/api/signal-service'
 import { toast } from 'sonner'
 import { ECKeyPair } from '@/shared/api/eckeypair'
 import sodium from 'libsodium-wrappers-sumo'
@@ -15,62 +11,8 @@ import * as GroupUtils from '@/shared/api/utils/Group'
 import { concatUInt8Array } from '@/shared/api/crypto'
 import { removeMessagePadding } from '@/shared/api/buffer-padding'
 import { getAllCachedECKeyPair } from '@/shared/api/closed-groups'
-
-export type NewMessage = {
-  from: string;
-  to: string | undefined;
-  envelope: SignalService.Envelope;
-  content: SignalService.Content;
-  sentAtTimestamp: number;
-  hash: string;
-}
-
-export async function getNewMessages(node: string): Promise<NewMessage[]> {
-  const keypair = await UserUtils.getIdentityKeyPair()
-  if (!keypair) throw new Error('No identity keypair found')
-  const results = await pollSnode({
-    snode: node,
-    namespace: SnodeNamespaces.UserMessages,
-    pubkey: toHex(keypair.pubKey)
-  })
-  const receivedMessages = _.uniqBy(results.messages.messages as RetrieveMessageItem[], x => x.hash)
-  
-  const newMessages: RetrieveMessageItem[] = []
-  for (const msg of receivedMessages) {
-    if (!await Storage.isMessageSeen(msg.hash)) {
-      Storage.setMessageSeen(msg.hash)
-      newMessages.push(msg)
-    }
-  }
-
-  const processedMessages = await Promise.all(
-    newMessages.map(async m => {
-      const content = extractWebSocketContent(m.data, m.hash)
-      if (!content) {
-        return null
-      }
-
-      const message = { body: content.body, hash: content.messageHash, expiration: m.expiration }
-      const envelope = SignalService.Envelope.decode(message.body)
-
-      if (envelope.content && envelope.content.length > 0) {
-        const decrypted = await decryptNewMessage(envelope, content.messageHash)
-        if(!decrypted) return null
-        return {
-          ...decrypted,
-          from: decrypted?.envelope.source,
-          to: decrypted?.content.dataMessage?.syncTarget || undefined,
-        }
-      } else {
-        return null
-      }
-    })
-  )
-
-  const messages = processedMessages.filter(Boolean) as NewMessage[]
-
-  return messages.sort((a, b) => a.sentAtTimestamp - b.sentAtTimestamp)
-}
+import { SignalService } from '@/shared/api/signal-service'
+import * as UserUtils from '@/shared/api/utils/User'
 
 type WebSocketContent = null | {
   body: Uint8Array;
@@ -95,7 +37,7 @@ export function extractWebSocketContent(
     }
     return null
   } catch (error) {
-    if(error instanceof Error) {
+    if (error instanceof Error) {
       window?.console?.warn('extractWebSocketContent from message failed with:', error.message)
     }
     return null
@@ -109,7 +51,7 @@ type ProcessedMessage = {
   hash: string;
 }
 
-async function decryptNewMessage(envelope: SignalService.Envelope, hash: string): Promise<ProcessedMessage | null> {
+export async function decryptNewMessage(envelope: SignalService.Envelope, hash: string): Promise<ProcessedMessage | null> {
   const plaintext = await decrypt(envelope)
   if (!plaintext) return null
   if (plaintext instanceof ArrayBuffer && plaintext.byteLength === 0) {
@@ -283,7 +225,7 @@ export async function decryptWithSessionProtocol(
   isClosedGroup?: boolean
 ): Promise<Uint8Array> {
   const recipientX25519PrivateKey = x25519KeyPair.privateKeyData
-  const hex = toHex(new Uint8Array(x25519KeyPair.publicKeyData))
+  const hex = StringUtils.toHex(new Uint8Array(x25519KeyPair.publicKeyData))
 
   const recipientX25519PublicKey = PubKey.removePrefixIfNeeded(hex)
 
@@ -331,10 +273,10 @@ export async function decryptWithSessionProtocol(
   if (isClosedGroup) {
     // eslint-disable-next-line no-param-reassign
     // envelope.senderIdentity = `${KeyPrefixType.standard}${toHex(senderX25519PublicKey)}`
-    console.log(`${KeyPrefixType.standard}${toHex(senderX25519PublicKey)}`)
+    console.log(`${KeyPrefixType.standard}${StringUtils.toHex(senderX25519PublicKey)}`)
   } else {
     // eslint-disable-next-line no-param-reassign
-    envelope.source = `${KeyPrefixType.standard}${toHex(senderX25519PublicKey)}`
+    envelope.source = `${KeyPrefixType.standard}${StringUtils.toHex(senderX25519PublicKey)}`
   }
 
   return plaintext

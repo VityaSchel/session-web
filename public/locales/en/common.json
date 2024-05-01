@@ -21,5 +21,7 @@
   "unhandledError": "Session web ran into a problem that it couldn't handle, and now the page needs to be reloaded.",
   "messageOutgoingPrefix": "You: ",
   "inboxTitle": "Inbox",
-  "today": "Today"
+  "today": "Today",
+  "typeMessagePlaceholder": "Your message...",
+  "storeMessageError": "Couldn't send message"
 }

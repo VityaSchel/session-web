@@ -5,6 +5,7 @@ import _ from 'lodash'
 import { toHex } from './String'
 import { SessionKeyPairLibsodiumSumo as SessionKeyPair } from '../../../../types/keypairs'
 import * as Storage from '../storage'
+import { LokiProfile } from '@/shared/api/messages'
 
 export type HexKeyPair = {
   pubKey: string;
@@ -47,12 +48,30 @@ export const getUserED25519KeyPairBytes = async (): Promise<ByteKeyPair | undefi
 
 let cachedIdentityKeyPair: SessionKeyPair | undefined
 
-export async function getIdentityKeyPair(): Promise<SessionKeyPair | undefined> {
+export function getIdentityKeyPair(): SessionKeyPair | undefined {
   if (cachedIdentityKeyPair) {
     return cachedIdentityKeyPair
   }
-  const item = await Storage.getIdentityKeyPair()
+  const item = Storage.getIdentityKeyPair()
 
   cachedIdentityKeyPair = item
   return cachedIdentityKeyPair
+}
+
+export async function getOurProfile(): Promise<LokiProfile | undefined> {
+  try {
+    const keypair = getIdentityKeyPair()
+    if (!keypair) return undefined
+    const account = await Storage.db.accounts.get(toHex(keypair.pubKey))
+    if (!account) return undefined
+
+    return {
+      displayName: account.displayName || 'Anonymous',
+      avatarPointer: undefined,
+      profileKey: null//new Uint8Array(keypair.pubKey),
+    }
+  } catch (e) {
+    console.error('Failed to get our profile', e)
+    return undefined
+  }
 }

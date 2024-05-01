@@ -1,3 +1,6 @@
+// CREDIT: OXEN, Session-Desktop
+// github.com/oxen-io/session-desktop
+
 import { HexKeyPair } from '@/shared/api/eckeypair'
 import * as Storage from '@/shared/api/storage'
 

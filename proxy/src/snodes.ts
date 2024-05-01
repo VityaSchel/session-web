@@ -48,28 +48,30 @@ export async function fetchSnodesList() {
 // CREDIT: OXEN, Session-Desktop
 // github.com/oxen-io/session-desktop
 
-export async function pollSnode({ node, namespaces, pubkey, signatureBuilt }: {
+export async function pollSnode({ node, namespaces, pubkey, signatureBuilt, lastHashes }: {
   node: Snode,
   pubkey: string,
   signatureBuilt: SnodeSignatureResult
   namespaces: SnodeNamespaces[]
+  lastHashes?: string[]
 }): Promise<SnodeAPIRetrieve.RetrieveMessagesResultsBatched | null> {
   const namespaceLength = namespaces.length
   if (namespaceLength <= 0) {
     throw new Error(`invalid number of retrieve namespace provided: ${namespaceLength}`)
   }
-  const snodeEdkey = node.pubkey_ed25519
+  // const snodeEdkey = node.pubkey_ed25519
   const pkStr = pubkey
 
+  if(lastHashes && lastHashes.length !== namespaceLength) {
+    throw new Error(`lastHashes length does not match namespace length: ${lastHashes.length} !== ${namespaceLength}`)
+  }
+
   try {
-    const prevHashes = await Promise.all(
-      namespaces.map(() => '')
-    )
     const configHashesToBump: Array<string> = []
 
     let results = await SnodeAPIRetrieve.retrieveNextMessages(
       node,
-      prevHashes,
+      lastHashes ?? new Array(namespaceLength).fill(''),
       pkStr,
       namespaces,
       signatureBuilt
@@ -102,21 +104,11 @@ export async function pollSnode({ node, namespaces, pubkey, signatureBuilt }: {
       return last(r.messages.messages)
     })
 
-    console.info(
-      `updating last hashes for ${ed25519Str(pubkey)}: ${ed25519Str(snodeEdkey)}  ${lastMessages.map(m => m?.hash || '')}`
-    )
     await Promise.all(
       lastMessages.map(async (lastMessage, index) => {
         if (!lastMessage) {
           return undefined
         }
-        // return updateLastHash({
-        //   edkey: snodeEdkey,
-        //   pubkey,
-        //   namespace: namespaces[index],
-        //   hash: lastMessage.hash,
-        //   expiration: lastMessage.expiration,
-        // })
       })
     )
 
@@ -129,58 +121,5 @@ export async function pollSnode({ node, namespaces, pubkey, signatureBuilt }: {
     return null
   }
 }
-
-// async function updateLastHash({
-//   edkey,
-//   expiration,
-//   hash,
-//   namespace,
-//   pubkey,
-// }: {
-//   edkey: string;
-//   pubkey: PubKey;
-//   namespace: number;
-//   hash: string;
-//   expiration: number;
-// }): Promise<void> {
-//   const pkStr = pubkey.key
-//   const cached = await this.getLastHash(edkey, pubkey.key, namespace)
-
-//   if (!cached || cached !== hash) {
-//     await Data.updateLastHash({
-//       convoId: pkStr,
-//       snode: edkey,
-//       hash,
-//       expiresAt: expiration,
-//       namespace,
-//     })
-//   }
-
-//   if (!this.lastHashes[edkey]) {
-//     this.lastHashes[edkey] = {}
-//   }
-//   if (!this.lastHashes[edkey][pkStr]) {
-//     this.lastHashes[edkey][pkStr] = {}
-//   }
-//   this.lastHashes[edkey][pkStr][namespace] = hash
-// }
-
-// async function getLastHash(nodeEdKey: string, pubkey: string, namespace: number): Promise<string> {
-//   if (!this.lastHashes[nodeEdKey]?.[pubkey]?.[namespace]) {
-//     const lastHash = await Data.getLastHashBySnode(pubkey, nodeEdKey, namespace)
-
-//     if (!this.lastHashes[nodeEdKey]) {
-//       this.lastHashes[nodeEdKey] = {}
-//     }
-
-//     if (!this.lastHashes[nodeEdKey][pubkey]) {
-//       this.lastHashes[nodeEdKey][pubkey] = {}
-//     }
-//     this.lastHashes[nodeEdKey][pubkey][namespace] = lastHash || ''
-//     return this.lastHashes[nodeEdKey][pubkey][namespace]
-//   }
-//   // return the cached value
-//   return this.lastHashes[nodeEdKey][pubkey][namespace]
-// }
 
 export const ERROR_CODE_NO_CONNECT = 'ENETUNREACH: No network connection.'

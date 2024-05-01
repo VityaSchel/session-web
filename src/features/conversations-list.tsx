@@ -121,7 +121,7 @@ function ConversationItem({ selected, convo, isCollapsed }: {
               'dark:bg-muted dark:text-muted-foreground dark:hover:bg-muted dark:hover:text-white'
             )}
           >
-            <CounterBadge>{newMessages}</CounterBadge>
+            {newMessages !== undefined && newMessages > 0 && <CounterBadge>{newMessages}</CounterBadge>}
             <Avatar className='w-[24px] h-[24px] text-neutral-400 font-semibold text-xs'>
               {displayImage && <AvatarImage src={displayImage} alt={convo.displayName} />}
               <AvatarFallback>{trimmedDisplayName.toUpperCase()}</AvatarFallback>

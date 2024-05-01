@@ -1,6 +1,7 @@
 // CREDIT: OXEN, Session-Desktop
 // github.com/oxen-io/session-desktop
 
+import { KeyPrefixType } from '@/shared/api/pubkey'
 import ByteBuffer from 'bytebuffer'
 export const MAX_USERNAME_BYTES = 64
 
@@ -73,4 +74,25 @@ export const sanitizeSessionUsername = (inputName: string) => {
   }
 
   return validChars
+}
+
+/**
+   * This removes the 05, 15 or 25 prefix from a Pubkey which have it and have a length of 66
+   * @param keyWithOrWithoutPrefix the key with or without the prefix
+   */
+export function removePrefixIfNeeded(keyWithOrWithoutPrefix: string): string {
+  if (isValidPrefixAndLength(keyWithOrWithoutPrefix)) {
+    const keyWithoutPrefix = keyWithOrWithoutPrefix.substring(2)
+    return keyWithoutPrefix
+  }
+  return keyWithOrWithoutPrefix
+}
+
+function isValidPrefixAndLength(keyWithOrWithoutPrefix: string): boolean {
+  return (
+    keyWithOrWithoutPrefix.length === 66 &&
+    (keyWithOrWithoutPrefix.startsWith(KeyPrefixType.blinded15) ||
+      keyWithOrWithoutPrefix.startsWith(KeyPrefixType.blinded25) ||
+      keyWithOrWithoutPrefix.startsWith(KeyPrefixType.standard))
+  )
 }

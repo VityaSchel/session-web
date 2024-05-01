@@ -31,6 +31,7 @@ export type DbMessage = {
   read: BooleanAsNumber
   textContent: string | null
   timestamp: number
+  sendingStatus: 'sending' | 'error' | 'sent'
 }
 
 export type DbUser = {
@@ -56,7 +57,7 @@ export class SessionWebDatabase extends Dexie {
     this.version(1).stores({
       accounts: 'sessionID',
       conversations: 'id, accountSessionID, [id+accountSessionID], lastMessageTime',
-      messages: 'hash, conversationID, read, accountSessionID, [conversationID+accountSessionID], [conversationID+accountSessionID+read]',
+      messages: 'hash, conversationID, read, accountSessionID, [conversationID+accountSessionID], [conversationID+accountSessionID+read], sendingStatus, [conversationID+accountSessionID+hash+sendingStatus]',
       users: 'sessionID',
       messages_seen: 'hash, receivedAt'
     })

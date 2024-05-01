@@ -7,9 +7,13 @@ import { isSameCalendarDate } from '@/shared/utils'
 import { MessageBubble } from '@/entities/message-bubble'
 import { ConversationDateSeparator } from '@/entities/conversation-date-separator'
 
-export function Conversation({ conversationID }: {
-  conversationID: string
-}) {
+export type ConversationRef = {
+  scrollToBottom: () => void
+}
+
+const Conversation = React.forwardRef<ConversationRef, { conversationID: string }>(({ conversationID }, ref) => {
+  const containerRef = React.useRef<HTMLDivElement>(null)
+
   const account = useAppSelector(selectAccount)
 
   const messages = useLiveQuery(() => account
@@ -45,14 +49,43 @@ export function Conversation({ conversationID }: {
     return dates
   }, [messages])
 
+  const initiallyScrolled = React.useRef(false)
+  React.useEffect(() => {
+    if (containerRef.current) {
+      if (dates !== undefined && initiallyScrolled.current === false) {
+        initiallyScrolled.current = true
+        containerRef.current.scrollTo({ top: containerRef.current.scrollHeight })
+      }
+    }
+  }, [dates, containerRef])
+
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    if(e.currentTarget.scrollTop === 0) {
+      // TODO: Load more messages
+    }
+  }
+
+  React.useImperativeHandle(ref, () => ({
+    scrollToBottom() {
+      if (containerRef.current === null) return
+      containerRef.current.scrollTo({ top: containerRef.current.scrollHeight })
+    }
+  }), [containerRef])
+
   return (
-    <div className='flex flex-col p-4 gap-1 w-full min-h-full justify-end'>
-      {dates?.map(date => (
-        <div className='relative flex flex-col gap-1 w-full' key={date.timestamp}>
-          <ConversationDateSeparator timestamp={date.timestamp} />
-          {date.messages.map(msg => <MessageBubble key={msg.hash} msg={msg} />)}
-        </div>
-      ))}
+    <div className='overflow-auto flex-1' ref={containerRef} onScroll={handleScroll}>
+      <div className='flex flex-col p-4 gap-1 w-full min-h-full justify-end'>
+        {dates?.map(date => (
+          <div className='relative flex flex-col gap-1 w-full' key={date.timestamp}>
+            <ConversationDateSeparator timestamp={date.timestamp} />
+            {date.messages.map(msg => <MessageBubble key={msg.hash} msg={msg} />)}
+          </div>
+        ))}
+      </div>
     </div>
   )
-}
+})
+
+Conversation.displayName = 'Conversation'
+
+export { Conversation }

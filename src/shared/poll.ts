@@ -1,34 +1,24 @@
 import { ConversationType } from '@/shared/api/conversations'
-import { getNewMessages } from '@/shared/api/messages'
-import { fetchSnodesList } from '@/shared/api/snodes'
+import { getNewMessages } from '@/shared/api/messages-receiver'
 import { DbUser, db } from '@/shared/api/storage'
+import { getTargetSwarm } from '@/shared/nodes'
 import { store } from '@/shared/store'
 import { selectAccount } from '@/shared/store/slices/account'
 import _ from 'lodash'
-import { toast } from 'sonner'
 
-let snodes: string[] = []
-let targetNode = '116.203.146.221:22105'
 export async function poll() {
-  if(!targetNode) {
-    snodes = await fetchSnodesList()
-    if (snodes.length === 0) {
-      toast.error('No snodes available')
-      return
-    }
-    targetNode = _.sample(snodes) as string
-  }
+  const targetSwarm = await getTargetSwarm()
 
   const state = store.getState()
   const account = selectAccount(state)
   if (!account) return
 
-  const messages = await getNewMessages(targetNode)
+  const messages = await getNewMessages(targetSwarm)
+  const dataMessages = messages.filter(msg => msg.content.dataMessage)
   const accountSessionID = account.sessionID
   
   db.messages.bulkAdd(
-    messages
-      .filter(msg => msg.content.dataMessage)
+    dataMessages
       .map(msg => { 
         const direction = msg.to ? 'outgoing' : 'incoming'
         return {
@@ -38,13 +28,14 @@ export async function poll() {
           accountSessionID,
           textContent: msg.content.dataMessage!.body ?? null,
           read: Number(direction === 'outgoing') as 0 | 1,
-          timestamp: msg.sentAtTimestamp
+          timestamp: msg.sentAtTimestamp,
+          sendingStatus: 'sent',
         }
       }
     )
   )
   
-  const profilesUnfiltered = _.uniqBy(messages.map(msg => ({
+  const profilesUnfiltered = _.uniqBy(dataMessages.map(msg => ({
     sessionID: msg.to ?? msg.envelope.source,
     displayName: msg.content.dataMessage?.profile?.displayName ?? undefined,
     // profileImage: msg.content.dataMessage?.profile?.profilePicture,
@@ -57,8 +48,7 @@ export async function poll() {
   }
   await db.users.bulkAdd(profiles)
 
-
-  for(const msg of messages) {
+  for (const msg of dataMessages) {
     const conversationID = msg.to ?? msg.envelope.source
     const convoExists = await db.conversations.get({ id: conversationID, accountSessionID: account.sessionID })
     if (!convoExists) {

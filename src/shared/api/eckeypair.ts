@@ -1,3 +1,6 @@
+// CREDIT: OXEN, Session-Desktop
+// github.com/oxen-io/session-desktop
+
 import { fromHexToArray, toHex } from '@/shared/api/utils/String'
 import { SessionKeyPairLibsodiumSumo as SessionKeyPair } from 'types/keypairs'
 

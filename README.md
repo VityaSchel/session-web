@@ -12,6 +12,10 @@ Experimental project running [Session messenger](https://getsession.org) in brow
 - [ ] Open groups (communities)
 - [ ] Blocked list
 - [ ] Profile editing
+- [ ] Searching conversations
+- [ ] Searching in conversations
+- [ ] Optimizations
+  - [ ] Partial conversations loading
 - [X] Multiaccount
 - [X] Localization
   - [X] English

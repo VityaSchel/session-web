@@ -1,3 +1,6 @@
+// CREDIT: OXEN, Session-Desktop
+// github.com/oxen-io/session-desktop
+
 export const concatUInt8Array = (...args: Array<Uint8Array>): Uint8Array => {
   const totalLength = args.reduce((acc, current) => acc + current.length, 0)
 

@@ -1,3 +1,6 @@
+// CREDIT: OXEN, Session-Desktop
+// github.com/oxen-io/session-desktop
+
 import { PubKey } from '../pubkey'
 import { ConversationType, getConversation } from '../conversations'
 import { fromHexToArray } from './String'

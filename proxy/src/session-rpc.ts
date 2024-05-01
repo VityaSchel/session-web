@@ -48,6 +48,8 @@ async function doRequest({
       'Accept-Language': 'en-us',
       'Content-Type': 'application/json',
     }
+    // console.log('fetchOptions', url, fetchOptions.body)
+
     const response = await fetch(url, {
       ...fetchOptions,
       body: fetchOptions.body || undefined,

@@ -1,20 +1,19 @@
 import React from 'react'
 import * as Storage from '@/shared/api/storage'
-import { LeftPanel } from '@/widgets/left-panel'
 import { Separator } from '@/shared/ui/separator'
-import { PageWrapper } from '@/widgets/page-wrapper'
-import { ResizablePanel } from '@/shared/ui/resizable'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useAppSelector } from '@/shared/store/hooks'
 import { selectAccount } from '@/shared/store/slices/account'
 import { formatSessionID } from '@/shared/utils'
-import { Conversation } from '@/widgets/conversation'
+import { Conversation, ConversationRef } from '@/widgets/conversation'
+import { ConversationMessageInput } from '@/features/conversation-message-input'
 
 export function ConversationPage() {
   const account = useAppSelector(selectAccount)
   const conversationID = useParams().id
   const navigate = useNavigate()
+  const conversationRef = React.useRef<ConversationRef>(null)
 
   React.useEffect(() => {
     async function getConversation() {
@@ -39,6 +38,10 @@ export function ConversationPage() {
 
   const conversation = useLiveQuery(() => Storage.db.conversations.get(conversationID), [conversationID])
 
+  const handleSent = () => {
+    conversationRef.current?.scrollToBottom()
+  }
+
   return (
     <div className='flex flex-col flex-1 h-full'>
       <div className="flex items-center px-4 py-2 h-14 shrink-0">
@@ -56,9 +59,8 @@ export function ConversationPage() {
             </div>
           </form> */}
       {/* </div> */}
-      <div className='overflow-auto flex-1'>
-        {conversationID !== undefined && <Conversation conversationID={conversationID} />}
-      </div>
+      {conversationID !== undefined && <Conversation conversationID={conversationID} ref={conversationRef} />}
+      {conversationID !== undefined && <ConversationMessageInput conversationID={conversationID} onSent={handleSent} />}
     </div>
   )
 }

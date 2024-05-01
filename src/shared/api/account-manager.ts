@@ -1,4 +1,5 @@
-// CREDIT: Oxen team, Session Desktop client
+// CREDIT: OXEN, Session-Desktop
+// github.com/oxen-io/session-desktop
 
 import { fromHex, toHex } from './utils/String'
 import { mnDecode, mnEncode } from './mnemonic-manager'
