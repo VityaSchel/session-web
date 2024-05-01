@@ -17,6 +17,7 @@ import { useTranslation } from 'react-i18next'
 import { SquarePenIcon } from 'lucide-react'
 import { CounterBadge } from '@/shared/ui/counter-badge'
 import { ConversationPreviewMessage } from '@/entities/conversation-preview-message'
+import { CreateConversationButton } from '@/entities/create-conversation-button'
 
 export function ConversationsList({ isCollapsed }: {
   isCollapsed: boolean
@@ -56,9 +57,7 @@ export function ConversationsList({ isCollapsed }: {
             )
           ) : (
             isCollapsed ? (
-              <Button size='icon' variant='secondary' className='w-full'>
-                <SquarePenIcon size={16} />
-              </Button>
+              <CreateConversationButton className='w-full' />
             ) : (
               <p className="text-muted-foreground text-center">
                 {t('noConversations')}
@@ -154,9 +153,9 @@ function ConversationItem({ selected, convo, isCollapsed }: {
         </Avatar>
         <div className='flex flex-col gap-1 flex-1 min-w-0'>
           <span className='font-medium text-ellipsis overflow-hidden'>{convo.displayName || convo.id}</span>
-          <span className='font-normal'>
+          {convo.lastMessage && (<span className='font-normal'>
             <ConversationPreviewMessage message={convo.lastMessage} />
-          </span>
+          </span>)}
         </div>
         {newMessages !== undefined && newMessages > 0 && (
           <span

@@ -20,7 +20,7 @@ export type DbConversation = {
   lastMessage: {
     direction: 'incoming' | 'outgoing'
     textContent: string | null
-  }
+  } | null
   lastMessageTime: number
 } & Conversation
 

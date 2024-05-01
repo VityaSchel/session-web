@@ -23,5 +23,13 @@
   "inboxTitle": "Inbox",
   "today": "Today",
   "typeMessagePlaceholder": "Your message...",
-  "storeMessageError": "Couldn't send message"
+  "storeMessageError": "Couldn't send message",
+  "newConversationDm": "New Message",
+  "newConversationGroup": "New Group",
+  "joinCommunity": "Join Community",
+  "inputRecipient": "Enter Session ID or ONS name",
+  "recipient": "Recipient",
+  "aboutOns": "View and register ONS names",
+  "onsInvalid": "ONS name not found",
+  "unsupportedLegacyOns": "This ONS has legacy format which is unsupported at the moment"
 }

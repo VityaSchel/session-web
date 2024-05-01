@@ -7,8 +7,7 @@ import {
 import { Separator } from '@/shared/ui/separator'
 import { AccountSwitcher } from '@/features/account-switcher'
 import { ConversationsList } from '@/features/conversations-list'
-import { Button } from '@/shared/ui/button'
-import { SquarePenIcon } from 'lucide-react'
+import { CreateConversationButton } from '@/entities/create-conversation-button'
 
 export function LeftPanel() {
   const [isCollapsed, setIsCollapsed] = React.useState(false)
@@ -56,15 +55,13 @@ export function LeftPanel() {
       >
         <div
           className={cx(
-            'flex h-[56px] items-center justify-center shrink-0 gap-2 px-2',
+            'flex h-[56px] items-center justify-center shrink-0 gap-1 px-2',
             isCollapsed ? 'h-[52px]' : ''
           )}
         >
           <AccountSwitcher isCollapsed={isCollapsed} />
           {!isCollapsed && (
-            <Button size='icon' variant='secondary' className='shrink-0'>
-              <SquarePenIcon size={16} />
-            </Button>
+            <CreateConversationButton className='shrink-0' />
           )}
         </div>
         <Separator />

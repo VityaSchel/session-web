@@ -124,11 +124,18 @@ server.post('/poll', async (req, res) => {
     })
     return
   } catch(e) {
-    res.status(500).json({
-      ok: false,
-      error: e.message
-    })
-    return
+    if(e instanceof RetryWithOtherNode421Error) {
+      res.status(421).json({
+        ok: false,
+        error: 'Retry with another node'
+      })
+    } else {
+      res.status(500).json({
+        ok: false,
+        error: e.message
+      })
+      return
+    }
   }
 })
 
@@ -183,6 +190,59 @@ server.post('/store', async (req, res) => {
       return res.status(500).json({
         ok: false,
         error: 'Internal server error'
+      })
+    }
+  }
+})
+
+server.get('/ons', async (req, res) => {
+  const myHeaders = new Headers()
+  myHeaders.append('Content-Type', 'application/json')
+
+  const query = await z.object({
+    hash: z.string().length(44).regex(/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/)
+  }).safeParseAsync(req.query)
+  if(!query.success) {
+    res.status(400).json({
+      ok: false,
+      error: 'Invalid request params'
+    })
+    return
+  }
+
+  const nameHash = query.data.hash
+
+  const request = await fetch('http://public-eu.optf.ngo:22023/json_rpc', {
+    method: 'POST',
+    headers: myHeaders,
+    body: JSON.stringify({
+      'jsonrpc': '2.0',
+      'id': '0',
+      'method': 'ons_resolve',
+      'params': {
+        'name_hash': nameHash,
+        'type': 0
+      }
+    }),
+    redirect: 'follow'
+  })
+  if(request.status !== 200) {
+    res.status(500).json({
+      ok: false,
+      error: 'Internal server error'
+    })
+    return
+  } else {
+    const response = await request.json()
+    if(response.error) {
+      res.status(200).json({
+        ok: false,
+        error: response.error.message
+      })
+    } else {
+      res.status(200).json({
+        ok: true,
+        value: response.result.encrypted_value ?? null
       })
     }
   }

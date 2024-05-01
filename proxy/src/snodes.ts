@@ -4,6 +4,8 @@ import { seeds } from './seeds-certificates'
 import * as SnodeAPIRetrieve from './snode-api-retrieve'
 import { ed25519Str } from './onion-path'
 import { SnodeSignatureResult } from '../../types/snode-signature-result'
+import pRetry from 'p-retry'
+import { RetryWithOtherNode421Error } from './utils/errors'
 
 export type Snode = {
   public_ip: string
@@ -114,6 +116,7 @@ export async function pollSnode({ node, namespaces, pubkey, signatureBuilt, last
 
     return results
   } catch (e) {
+    if(e instanceof RetryWithOtherNode421Error) throw e
     if (e.message === ERROR_CODE_NO_CONNECT) {
       console.error('Server is offline')
     }

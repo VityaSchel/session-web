@@ -5,6 +5,8 @@ export function ConversationPreviewMessage({ message }: {
   message: DbConversation['lastMessage']
 }) {
   const { t } = useTranslation()
+
+  if(!message) return null
   
   return (
     <div className='text-ellipsis overflow-hidden'>

@@ -23,5 +23,13 @@
   "inboxTitle": "Сообщения",
   "today": "Сегодня",
   "typeMessagePlaceholder": "Сообщение...",
-  "storeMessageError": "Не удалось отправить сообщение"
+  "storeMessageError": "Не удалось отправить сообщение",
+  "newConversationDm": "Новое сообщение",
+  "newConversationGroup": "Создать группу",
+  "joinCommunity": "Вступить в сообщество",
+  "inputRecipient": "Введите Session ID или ONS имя",
+  "recipient": "Получатель",
+  "aboutOns": "Просмотр и регистрация ONS имен",
+  "onsInvalid": "Не удалось найти ONS имя",
+  "unsupportedLegacyOns": "Этот ONS имеет старый формат, который пока не поддерживается"
 }

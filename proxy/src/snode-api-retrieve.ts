@@ -8,6 +8,7 @@ import { isArray, omit } from 'lodash'
 import { SnodeSignatureResult } from '../../types/snode-signature-result'
 import { doSnodeBatchRequest } from './batch-request'
 import { GetNetworkTime } from './network-time'
+import { RetryWithOtherNode421Error } from './utils/errors'
 
 export type RetrieveMessageItem = {
   hash: string;
@@ -170,6 +171,7 @@ export async function retrieveNextMessages(
   const firstResult = results[0]
 
   if (firstResult.code !== 200) {
+    if (firstResult.code === 421) throw new RetryWithOtherNode421Error()
     throw new Error(
       `_retrieveNextMessages - retrieve result is not 200 with ${targetNode.public_ip}:${targetNode.storage_port} but ${firstResult.code}`
     )
