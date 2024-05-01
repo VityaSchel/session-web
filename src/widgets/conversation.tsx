@@ -6,6 +6,7 @@ import { useAppSelector } from '@/shared/store/hooks'
 import { isSameCalendarDate } from '@/shared/utils'
 import { MessageBubble } from '@/entities/message-bubble'
 import { ConversationDateSeparator } from '@/entities/conversation-date-separator'
+import _ from 'lodash'
 
 export type ConversationRef = {
   scrollToBottom: () => void
@@ -78,7 +79,8 @@ const Conversation = React.forwardRef<ConversationRef, { conversationID: string 
         {dates?.map(date => (
           <div className='relative flex flex-col gap-1 w-full' key={date.timestamp}>
             <ConversationDateSeparator timestamp={date.timestamp} />
-            {date.messages.map(msg => <MessageBubble key={msg.hash} msg={msg} />)}
+            {_.uniqBy(date.messages, 'id')
+              .map(msg => <MessageBubble key={msg.id} msg={msg} />)}
           </div>
         ))}
       </div>

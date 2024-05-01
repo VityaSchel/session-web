@@ -46,3 +46,11 @@ export async function getTargetSwarm(): Promise<string> {
   }
   return targetSwarm
 }
+
+export function resetTargetNode() {
+  targetNode = undefined
+}
+
+export function resetTargetSwarm() {
+  targetSwarm = undefined
+}

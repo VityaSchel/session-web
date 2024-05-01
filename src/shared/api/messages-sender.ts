@@ -11,15 +11,24 @@ import { ContentMessage, toRawMessage } from '@/shared/api/messages'
 import { toast } from 'sonner'
 import { t } from 'i18next'
 import { getTargetNode } from '@/shared/nodes'
+import { getIdentityKeyPair } from '@/shared/api/storage'
+import { toHex } from '@/shared/api/utils/String'
 
 export async function sendMessage(
   destination: string,
-  msg: ContentMessage
-): Promise<{ ok: true, hash: string } | { ok: false }> {
+  msg: ContentMessage,
+  syncMessage: ContentMessage
+): Promise<{ ok: true, hash: string, syncHash: string } | { ok: false }> {
+  const keypair = getIdentityKeyPair()
+  if(!keypair) {
+    throw new Error('No identity keypair found')
+  }
+
   const message = toRawMessage(destination, msg, SnodeNamespaces.UserMessages)
+  const rawSyncMessage = toRawMessage(destination, syncMessage, SnodeNamespaces.UserMessages)
   const { ttl } = message
 
-  const [encryptedAndWrapped] = await encryptMessagesAndWrap([
+  const [encryptedAndWrapped, syncEncryptedAndWrapped] = await encryptMessagesAndWrap([
     {
       destination,
       plainTextBuffer: message.plainTextBuffer,
@@ -27,6 +36,14 @@ export async function sendMessage(
       ttl,
       identifier: message.identifier,
       isSyncMessage: false
+    },
+    {
+      destination: toHex(keypair.pubKey),
+      plainTextBuffer: rawSyncMessage.plainTextBuffer,
+      namespace: rawSyncMessage.namespace,
+      ttl,
+      identifier: rawSyncMessage.identifier,
+      isSyncMessage: true
     },
   ])
 
@@ -42,7 +59,11 @@ export async function sendMessage(
         namespace: encryptedAndWrapped.namespace,
       },
       destination: message.recipient,
-      snode: await getTargetNode()
+      snode: await getTargetNode(),
+      sync: {
+        pubkey: toHex(keypair?.pubKey),
+        data: syncEncryptedAndWrapped.data64
+      }
     })
   })
 
@@ -51,10 +72,10 @@ export async function sendMessage(
     return { ok: false }
   }
 
-  const response = await request.json() as { ok: true, hash: string } | { ok: false, error?: string }
+  const response = await request.json() as { ok: true, hash: string, syncHash: string } | { ok: false, error?: string }
 
   if (response.ok) {
-    return { ok: true, hash: response.hash }
+    return { ok: true, hash: response.hash, syncHash: response.syncHash }
   } else {
     if('error' in response) {
       toast.error(response.error)

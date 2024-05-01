@@ -7,6 +7,7 @@ import { SnodeNamespaces } from '../../types/namespaces'
 import _ from 'lodash'
 import { getSwarms } from './swarms'
 import { sendMessageDataToSnode } from './store-message'
+import { RetryWithOtherNode421Error } from './utils/errors'
 
 const server = bunrest()
 
@@ -142,6 +143,10 @@ server.post('/store', async (req, res) => {
       namespace: z.nativeEnum(SnodeNamespaces),
     }),
     snode: z.string().regex(/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{1,5}$/),
+    sync: z.object({
+      pubkey: z.string().length(66),
+      data: z.string().min(1),
+    })
   }).safeParseAsync(req.body)
   if(!body.success) {
     res.status(400).json({
@@ -164,15 +169,22 @@ server.post('/store', async (req, res) => {
     const result = await sendMessageDataToSnode(
       body.data.params,
       body.data.destination,
-      snode
+      snode,
+      body.data.sync.pubkey,
+      body.data.sync.data
     )
     return res.status(200).json(result)
   } catch(e) {
-    console.error(e)
-    return res.status(500).json({
-      ok: false,
-      error: 'Internal server error'
-    })
+    if(e instanceof RetryWithOtherNode421Error) {
+      return res.status(500).json({
+        ok: false
+      })
+    } else {
+      return res.status(500).json({
+        ok: false,
+        error: 'Internal server error'
+      })
+    }
   }
 })
 

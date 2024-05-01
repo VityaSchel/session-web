@@ -69,6 +69,7 @@ export function AccountSwitcher({ isCollapsed }: {
       const dbAccount = await db.accounts.get(newSessionID)
       if (!dbAccount) return
       dispatch(setAccount(dbAccount))
+      navigate('/')
     }
   }
 

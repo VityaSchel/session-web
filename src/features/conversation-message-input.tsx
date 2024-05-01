@@ -42,6 +42,19 @@ export function ConversationMessageInput({ conversationID, onSent }: {
         preview: [],
         quote: undefined
       })
+      const syncMessage = new VisibleMessage({
+        attachments: [],
+        body: message,
+        expirationType: 'unknown',
+        expireTimer: 0,
+        identifier: uuid(),
+        preview: [],
+        lokiProfile: undefined,
+        quote: undefined,
+        reaction: undefined,
+        syncTarget: conversationID,
+        timestamp: timestamp
+      })
       const tempHash = 'temp-unsent-message_' + uuid()
       await db.messages.add({
         direction: 'outgoing',
@@ -51,15 +64,24 @@ export function ConversationMessageInput({ conversationID, onSent }: {
         textContent: message,
         read: Number(true) as 0 | 1,
         timestamp,
-        sendingStatus: 'sending'
+        sendingStatus: 'sending',
+        id: messageInstance.identifier
       })
       setMessage('')
       onSent()
-      const result = await sendMessage(conversationID, messageInstance)
-      await db.messages.update(tempHash, {
-        ...(result.ok && { hash: result.hash }),
-        sendingStatus: result.ok ? 'sent' : 'error'
-      })
+
+      const result = await sendMessage(conversationID, messageInstance, syncMessage)
+      if (result.ok) {
+        await db.messages.update(tempHash, {
+          ...(result.ok && { hash: result.syncHash }),
+          sendingStatus: result.ok ? 'sent' : 'error'
+        })
+        await db.messages_seen.add({
+          hash: result.syncHash,
+          receivedAt: timestamp,
+          accountSessionID: account.sessionID
+        })
+      }
     }
   }
 

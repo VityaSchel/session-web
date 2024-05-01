@@ -3,6 +3,7 @@ import { PubKey } from '@/shared/api/pubkey'
 import { HexKeyPair } from '@/shared/api/eckeypair'
 import Dexie, { Table } from 'dexie'
 import { Conversation } from '@/shared/api/conversations'
+import { toHex } from '@/shared/api/utils/String'
 
 type BooleanAsNumber = 0 | 1
 
@@ -27,6 +28,8 @@ export type DbMessage = {
   direction: 'incoming' | 'outgoing'
   accountSessionID: string
   hash: string
+  /** Generated and used internally */
+  id: string
   conversationID: string
   read: BooleanAsNumber
   textContent: string | null
@@ -43,6 +46,7 @@ export type DbUser = {
 export type DbMessageSeen = {
   hash: string
   receivedAt: number
+  accountSessionID: string
 }
 
 export class SessionWebDatabase extends Dexie {
@@ -57,9 +61,9 @@ export class SessionWebDatabase extends Dexie {
     this.version(1).stores({
       accounts: 'sessionID',
       conversations: 'id, accountSessionID, [id+accountSessionID], lastMessageTime',
-      messages: 'hash, conversationID, read, accountSessionID, [conversationID+accountSessionID], [conversationID+accountSessionID+read], sendingStatus, [conversationID+accountSessionID+hash+sendingStatus]',
+      messages: 'hash, id, conversationID, read, accountSessionID, [conversationID+accountSessionID], [conversationID+accountSessionID+read], sendingStatus, [conversationID+accountSessionID+hash+sendingStatus]',
       users: 'sessionID',
-      messages_seen: 'hash, receivedAt'
+      messages_seen: 'hash, receivedAt, accountSessionID'
     })
   }
 }
@@ -91,7 +95,13 @@ export async function isMessageSeen(hash: string) {
 }
 
 export async function setMessageSeen(hash: string) {
-  await db.messages_seen.add({ hash, receivedAt: Date.now() })
+  const keypair = getIdentityKeyPair()
+  if (!keypair) throw new Error('No identity keypair found')
+  await db.messages_seen.add({ 
+    hash, 
+    receivedAt: Date.now(), 
+    accountSessionID: toHex(keypair.pubKey)
+  })
 }
 
 /**

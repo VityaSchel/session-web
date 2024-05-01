@@ -46,16 +46,8 @@ export const getUserED25519KeyPairBytes = async (): Promise<ByteKeyPair | undefi
   return undefined
 }
 
-let cachedIdentityKeyPair: SessionKeyPair | undefined
-
 export function getIdentityKeyPair(): SessionKeyPair | undefined {
-  if (cachedIdentityKeyPair) {
-    return cachedIdentityKeyPair
-  }
-  const item = Storage.getIdentityKeyPair()
-
-  cachedIdentityKeyPair = item
-  return cachedIdentityKeyPair
+  return Storage.getIdentityKeyPair()
 }
 
 export async function getOurProfile(): Promise<LokiProfile | undefined> {

@@ -5,8 +5,9 @@ Experimental project running [Session messenger](https://getsession.org) in brow
 **This is rather a technical challenge for me, rather than a stable client**
 
 - [X] Receiving messages
-- [ ] Sending messages
+- [X] Sending messages
   - [ ] Attachments support
+- [ ] Clearing network
 - [ ] Conversations pinning
 - [ ] Closed groups
 - [ ] Open groups (communities)

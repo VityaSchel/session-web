@@ -5,45 +5,85 @@ import { getSwarms } from './swarms'
 import { doSnodeBatchRequest } from './batch-request'
 import { GetNetworkTime } from './network-time'
 import { nodes } from './index'
+import { RetryWithOtherNode421Error } from './utils/errors'
+import pRetry from 'p-retry'
 
 export async function sendMessageDataToSnode(
   params: StoreOnNodeParamsNoSig,
   destination: string,
-  snode: Snode
-): Promise<{ ok: true, hash: string } | { ok: false }> {
-  const swarms = await getSwarms(destination, snode)
-  const swarm = _.sample(swarms)
-  if (!swarm) throw new Error('No swarm found')
-  const targetSwarm = nodes.get(swarm)
-  if (!targetSwarm) throw new Error('Swarm was not in the list of nodes')
+  snode: Snode,
+  syncPubKey: string,
+  syncData: string
+): Promise<{ ok: true, hash: string, syncHash: string } | { ok: false }> {
+  const targetSwarms = await getSwarms(destination, snode)
+  if (targetSwarms.length === 0) throw new Error('No target swarms found')
 
-  const storeResults = await storeOnNode(
-    targetSwarm,
-    [{ 
-      data: params.data64,
-      namespace: params.namespace,
-      pubkey: params.pubkey,
-      timestamp: params.timestamp,
-      ttl: params.ttl
-    }],
-    null
-  )
-  const storeResults = await storeOnNode(
-    targetSwarm,
-    [{ 
-      data: params.data64,
-      namespace: params.namespace,
-      pubkey: params.pubkey,
-      timestamp: params.timestamp,
-      ttl: params.ttl
-    }],
-    null
-  )
+  const ourSwarms = await getSwarms(syncPubKey, snode)
+  if (ourSwarms.length === 0) throw new Error('No our swarms found')
+
+  const storeResults = await pRetry(async () => {
+    const targetSwarm = _.sample(targetSwarms)
+    if(!targetSwarm) throw new Error('No available target swarms left')
+    const targetSwarmInstance = nodes.get(targetSwarm)
+    if (!targetSwarmInstance) throw new Error('Swarm was not in the list of nodes')
+
+    try {
+      return await storeOnNode(
+        targetSwarmInstance,
+        [{ 
+          data: params.data64,
+          namespace: params.namespace,
+          pubkey: params.pubkey,
+          timestamp: params.timestamp,
+          ttl: params.ttl
+        }],
+        null
+      )
+    } catch (e) {
+      if (e instanceof RetryWithOtherNode421Error) {
+        targetSwarms.splice(targetSwarms.indexOf(targetSwarm), 1)
+        console.log('Retrying without', targetSwarm)
+      }
+      throw e
+    }
+  }, {
+    retries: 5,
+    shouldRetry: err => err instanceof RetryWithOtherNode421Error
+  })
 
   if(isEmpty(storeResults)) {
     return { ok: false }
   } else {
-    return { ok: true, hash: storeResults[0].body.hash }
+    const syncStoreResults = await pRetry(async () => {
+      const ourSwarm = _.sample(ourSwarms)
+      if(!ourSwarm) throw new Error('No available our swarms left')
+      const ourSwarmInstance = nodes.get(ourSwarm)
+      if (!ourSwarmInstance) throw new Error('Swarm was not in the list of nodes')
+
+      try {
+        return await storeOnNode(
+          ourSwarmInstance,
+          [{
+            data: syncData,
+            namespace: params.namespace,
+            pubkey: syncPubKey,
+            timestamp: params.timestamp,
+            ttl: params.ttl
+          }],
+          null
+        )
+      } catch(e) {
+        if(e instanceof RetryWithOtherNode421Error) {
+          ourSwarms.splice(ourSwarms.indexOf(ourSwarm), 1)
+          console.log('Retrying without', ourSwarm)
+        }
+        throw e
+      }
+    }, {
+      retries: 5,
+      shouldRetry: err => err instanceof RetryWithOtherNode421Error
+    })
+    return { ok: true, hash: storeResults[0].body.hash, syncHash: syncStoreResults[0].body.hash }
   }
 }
 
@@ -102,7 +142,8 @@ async function storeOnNode(
   const firstResult = result[0]
 
   if (firstResult.code !== 200) {
-    throw new Error('storeOnNode: Invalid status code')
+    if (firstResult.code === 421) throw new RetryWithOtherNode421Error()
+    throw new Error('storeOnNode: Invalid status code: ' + firstResult.code)
   }
 
   GetNetworkTime.handleTimestampOffsetFromNetwork('store', firstResult.body.t)

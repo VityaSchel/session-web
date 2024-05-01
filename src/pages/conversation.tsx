@@ -19,7 +19,7 @@ export function ConversationPage() {
     async function getConversation() {
       if (!account) return
 
-      if (!await Storage.db.conversations.where({ id: conversationID, accountSessionID: account.sessionID })) {
+      if (!await Storage.db.conversations.get({ id: conversationID, accountSessionID: account.sessionID })) {
         navigate('/')
       } else {
         
@@ -36,7 +36,10 @@ export function ConversationPage() {
     getConversation()
   }, [conversationID, navigate, account])
 
-  const conversation = useLiveQuery(() => Storage.db.conversations.get(conversationID), [conversationID])
+  const conversation = useLiveQuery(() => account
+    ? Storage.db.conversations.get({ id: conversationID, accountSessionID: account.sessionID })
+    : undefined,
+  [conversationID, account])
 
   const handleSent = () => {
     conversationRef.current?.scrollToBottom()

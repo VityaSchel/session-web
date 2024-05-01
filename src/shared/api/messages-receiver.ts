@@ -24,7 +24,9 @@ export async function getNewMessages(swarm: string): Promise<NewMessage[]> {
   const keypair = await UserUtils.getIdentityKeyPair()
   if (!keypair) throw new Error('No identity keypair found')
 
-  const lastSeenMessage = await Storage.db.messages_seen.orderBy('receivedAt').reverse().first()
+  const lastSeenMessage = await (await Storage.db.messages_seen
+    .where({ accountSessionID: toHex(keypair.pubKey) })
+    .sortBy('receivedAt')).at(-1)
 
   const results = await pollSnode({
     swarm,

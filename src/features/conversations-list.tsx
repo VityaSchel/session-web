@@ -60,7 +60,7 @@ export function ConversationsList({ isCollapsed }: {
                 <SquarePenIcon size={16} />
               </Button>
             ) : (
-              <p className="text-muted-foreground text-center flex-1">
+              <p className="text-muted-foreground text-center">
                 {t('noConversations')}
               </p>
             )

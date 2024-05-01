@@ -5,6 +5,7 @@ import { getTargetSwarm } from '@/shared/nodes'
 import { store } from '@/shared/store'
 import { selectAccount } from '@/shared/store/slices/account'
 import _ from 'lodash'
+import { v4 as uuid } from 'uuid'
 
 export async function poll() {
   const targetSwarm = await getTargetSwarm()
@@ -30,6 +31,7 @@ export async function poll() {
           read: Number(direction === 'outgoing') as 0 | 1,
           timestamp: msg.sentAtTimestamp,
           sendingStatus: 'sent',
+          id: uuid()
         }
       }
     )
