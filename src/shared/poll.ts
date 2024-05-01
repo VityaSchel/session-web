@@ -25,14 +25,18 @@ export async function poll() {
 
   const messages = await getNewMessages(targetNode)
   const accountSessionID = account.sessionID
-  db.messages.bulkAdd(messages.map(msg => ({ 
-    conversationID: msg.envelope.source,
-    hash: msg.hash,
-    accountSessionID,
-    textContent: msg.content.dataMessage?.body ?? null,
-    read: false,
-    timestamp: msg.sentAtTimestamp
-  })))
+  db.messages.bulkAdd(
+    messages
+      .filter(msg => msg.content.dataMessage)
+      .map(msg => ({ 
+        conversationID: msg.envelope.source,
+        hash: msg.hash,
+        accountSessionID,
+        textContent: msg.content.dataMessage!.body ?? null,
+        read: Number(false) as 0 | 1,
+        timestamp: msg.sentAtTimestamp
+      }))
+  )
   
   const profilesUnfiltered = _.uniqBy(messages.map(msg => ({
     sessionID: msg.envelope.source,
@@ -49,15 +53,27 @@ export async function poll() {
 
 
   for(const msg of messages) {
-    if (!await db.conversations.get({ id: msg.envelope.source, accountSessionID: account.sessionID })) {
+    const convoExists = await db.conversations.get({ id: msg.envelope.source, accountSessionID: account.sessionID })
+    if (!convoExists) {
       await db.conversations.add({
         type: ConversationType.DirectMessages,
         accountSessionID,
         id: msg.envelope.source,
         displayName: msg.content.dataMessage?.profile?.displayName ?? undefined,
         // profileImage: msg.content.dataMessage?.profile?.profilePicture,
-        // lastMessage: msg.content.dataMessage?.body ?? null,
-        // lastMessageTime: msg.timestamp,
+        lastMessage: {
+          direction: msg.envelope.source === account.sessionID ? 'outgoing' : 'incoming',
+          textContent: msg.content.dataMessage?.body ?? null
+        },
+        lastMessageTime: msg.sentAtTimestamp,
+      })
+    } else {
+      await db.conversations.update(msg.envelope.source, {
+        lastMessage: {
+          direction: msg.envelope.source === account.sessionID ? 'outgoing' : 'incoming',
+          textContent: msg.content.dataMessage?.body ?? null
+        },
+        lastMessageTime: msg.sentAtTimestamp
       })
     }
   }

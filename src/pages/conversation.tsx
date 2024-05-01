@@ -1,16 +1,29 @@
+import React from 'react'
 import * as Storage from '@/shared/api/storage'
 import { LeftPanel } from '@/widgets/left-panel'
 import { Separator } from '@/shared/ui/separator'
 import { PageWrapper } from '@/widgets/page-wrapper'
 import { ResizablePanel } from '@/shared/ui/resizable'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { useAppSelector } from '@/shared/store/hooks'
 import { selectAccount } from '@/shared/store/slices/account'
 
 export function ConversationPage() {
   const account = useAppSelector(selectAccount)
   const conversationID = useParams().id
+  const navigate = useNavigate()
+
+  React.useEffect(() => {
+    async function getConversation() {
+      if (!await Storage.db.conversations.get(conversationID)) {
+        navigate('/')
+      }
+    }
+
+    getConversation()
+  }, [conversationID, navigate])
+
   const messages = useLiveQuery(() => account
     ? Storage.db.messages.where({ accountSessionID: account.sessionID, conversationID }).toArray()
     : [], 

@@ -4,6 +4,8 @@ import { HexKeyPair } from '@/shared/api/eckeypair'
 import Dexie, { Table } from 'dexie'
 import { Conversation } from '@/shared/api/conversations'
 
+type BooleanAsNumber = 0 | 1
+
 export type DbAccount = {
   sessionID: string
   mnemonic: string
@@ -14,13 +16,18 @@ export type DbAccount = {
 export type DbConversation = {
   accountSessionID: string
   id: string
+  lastMessage: {
+    direction: 'incoming' | 'outgoing'
+    textContent: string | null
+  }
+  lastMessageTime: number
 } & Conversation
 
 export type DbMessage = {
   accountSessionID: string
   hash: string
   conversationID: string
-  read: boolean
+  read: BooleanAsNumber
   textContent: string | null
   timestamp: number
 }
@@ -31,19 +38,26 @@ export type DbUser = {
   profileImage?: Blob
 }
 
+export type DbMessageSeen = {
+  hash: string
+  receivedAt: number
+}
+
 export class SessionWebDatabase extends Dexie {
   accounts!: Table<DbAccount>
   conversations!: Table<DbConversation>
   messages!: Table<DbMessage>
   users!: Table<DbUser>
+  messages_seen!: Table<DbMessageSeen>
 
   constructor() {
     super('session-web')
     this.version(1).stores({
       accounts: 'sessionID',
-      conversations: 'id, accountSessionID',
-      messages: 'hash, conversationID, read, accountSessionID',
-      users: 'sessionID'
+      conversations: 'id, accountSessionID, [id+accountSessionID], lastMessageTime',
+      messages: 'hash, conversationID, read, accountSessionID, [conversationID+accountSessionID], [conversationID+read]',
+      users: 'sessionID',
+      messages_seen: 'hash, receivedAt'
     })
   }
 }
@@ -70,12 +84,12 @@ export function setIdentityKeypair(keypair: SessionKeyPair | undefined) {
   identityKeyPair = keypair
 }
 
-export function isMessageSeen(hash: string) {
-  return Boolean(window.localStorage.getItem('message-'+hash))
+export async function isMessageSeen(hash: string) {
+  return Boolean(await db.messages_seen.get(hash))
 }
 
-export function setMessageSeen(hash: string) {
-  return window.localStorage.setItem('message-'+hash, String(Date.now()))
+export async function setMessageSeen(hash: string) {
+  await db.messages_seen.add({ hash, receivedAt: Date.now() })
 }
 
 /**

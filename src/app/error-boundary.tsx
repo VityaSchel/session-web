@@ -1,9 +1,9 @@
 import React from 'react'
 
 export class ErrorBoundary extends React.Component<React.PropsWithChildren, { hasError: boolean, error: string }> {
-  constructor() {
-    super({})
-    this.state = { hasError: false }
+  constructor(props: React.PropsWithChildren) {
+    super(props)
+    this.state = { hasError: false, error: '' }
   }
 
   static getDerivedStateFromError(error: unknown) {

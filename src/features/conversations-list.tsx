@@ -15,6 +15,8 @@ import { useAppSelector } from '@/shared/store/hooks'
 import { selectAccount } from '@/shared/store/slices/account'
 import { useTranslation } from 'react-i18next'
 import { SquarePenIcon } from 'lucide-react'
+import { CounterBadge } from '@/shared/ui/counter-badge'
+import { ConversationPreviewMessage } from '@/entities/conversation-preview-message'
 
 export function ConversationsList({ isCollapsed }: {
   isCollapsed: boolean
@@ -74,7 +76,10 @@ function ConversationItem({ selected, convo, isCollapsed }: {
   convo: DbConversation
   isCollapsed: boolean
 }) {
-  const [newMessages, setNewMessages] = React.useState(0)
+  const newMessages = useLiveQuery(() => 
+    db.messages.where({ conversationID: convo.id, read: Number(false) as 0 | 1 }).count(), 
+    [convo.id]
+  )
 
   const variant = selected ? 'default' : 'ghost'
 
@@ -101,28 +106,20 @@ function ConversationItem({ selected, convo, isCollapsed }: {
     }
   }, [convo])
 
-  React.useState(() => {
-    async function getUnreadMessages() {
-      const count = await db.messages.where({ conversationId: convo.id, read: false }).count()
-      setNewMessages(count)
-    }
-
-    getUnreadMessages()
-  })
-
   return (
     isCollapsed ? (
       <Tooltip key={convo.id} delayDuration={0}>
         <TooltipTrigger asChild>
           <Link
             to={`/conversation/${convo.id}`}
-            className={cx(
+            className={cx('relative',
               buttonVariants({ variant: variant, size: 'icon' }),
               'h-9 w-9',
               variant === 'default' &&
               'dark:bg-muted dark:text-muted-foreground dark:hover:bg-muted dark:hover:text-white'
             )}
           >
+            <CounterBadge>{newMessages}</CounterBadge>
             <Avatar className='w-[24px] h-[24px] text-neutral-400 font-semibold text-xs'>
               {displayImage && <AvatarImage src={displayImage} alt={convo.displayName} />}
               <AvatarFallback>{trimmedDisplayName.toUpperCase()}</AvatarFallback>
@@ -132,7 +129,7 @@ function ConversationItem({ selected, convo, isCollapsed }: {
         </TooltipTrigger>
         <TooltipContent side="right" className="flex items-center gap-4">
           {convo.displayName || convo.id}
-          {newMessages > 0 && (
+          {newMessages !== undefined && newMessages > 0 && (
             <span className="ml-auto text-muted-foreground">
               {newMessages}
             </span>
@@ -146,20 +143,23 @@ function ConversationItem({ selected, convo, isCollapsed }: {
           buttonVariants({ variant: variant, size: 'sm' }),
           variant === 'default' &&
           'dark:bg-muted dark:text-white dark:hover:bg-muted dark:hover:text-white',
-          '!justify-start gap-3 !text-sm'
+          '!justify-start gap-3 !text-sm h-fit py-2'
         )}
       >
-        <Avatar className='w-[24px] h-[24px] text-neutral-400 font-semibold text-xs'>
+        <Avatar className='w-[48px] h-[48px] text-neutral-400 font-semibold text-base'>
           {displayImage && <AvatarImage src={displayImage} alt={convo.displayName || convo.id} />}
           <AvatarFallback>{trimmedDisplayName.toUpperCase()}</AvatarFallback>
         </Avatar>
-        {convo.displayName || convo.id}
-        {newMessages > 0 && (
+        <div className='flex flex-col gap-1'>
+          <span className='font-medium'>{convo.displayName || convo.id}</span>
+          <span className='font-normal'>
+            <ConversationPreviewMessage message={convo.lastMessage} />
+          </span>
+        </div>
+        {newMessages !== undefined && newMessages > 0 && (
           <span
-            className={cx(
-              'ml-auto',
-              variant === 'default' &&
-              'text-background dark:text-white'
+            className={cx('bg-brand rounded-full w-4 h-4 flex items-center justify-center text-xs !text-black',
+              'ml-auto'
             )}
           >
             {newMessages}

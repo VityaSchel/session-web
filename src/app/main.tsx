@@ -25,6 +25,9 @@ import { setIdentityKeypair } from '@/shared/api/storage'
 import { generateKeypair } from '@/shared/api/account-manager'
 import { ErrorBoundary } from '@/app/error-boundary'
 import { poll } from '@/shared/poll'
+import { NotFoundPage } from '@/pages/not-found-page'
+import sodium from 'libsodium-wrappers-sumo'
+import { SodiumLoader } from '@/app/sodium-loader'
 
 i18next
   .use(initReactI18next)
@@ -52,7 +55,7 @@ const router = createBrowserRouter([
   },
   {
     path: '*',
-    element: <Navigate to='/' />,
+    element: <NotFoundPage />,
   },
 ])
 
@@ -63,7 +66,9 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         <Provider store={store}>
           <PersistGate loading={null} persistor={persistor}>
             <ErrorBoundary>
-              <App />
+              <SodiumLoader>
+                <App />
+              </SodiumLoader>
             </ErrorBoundary>
           </PersistGate>
         </Provider>
@@ -78,7 +83,6 @@ function App() {
   React.useEffect(() => {
     if (account) {
       const keypair = generateKeypair(account.mnemonic)
-      console.log(keypair)
       setIdentityKeypair(keypair)
     } else {
       setIdentityKeypair(undefined)

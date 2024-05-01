@@ -170,8 +170,6 @@ export async function retrieveNextMessages(
   const firstResult = results[0]
 
   if (firstResult.code !== 200) {
-    console.log(firstResult)
-    console.warn(`retrieveNextMessages result is not 200 but ${firstResult.code}`)
     throw new Error(
       `_retrieveNextMessages - retrieve result is not 200 with ${targetNode.public_ip}:${targetNode.storage_port} but ${firstResult.code}`
     )

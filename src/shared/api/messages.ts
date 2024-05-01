@@ -26,14 +26,13 @@ export async function getNewMessages(node: string) {
   })
   const receivedMessages = _.uniqBy(results.messages.messages as RetrieveMessageItem[], x => x.hash)
   
-  const newMessages = receivedMessages.filter(m => {
-    if(!Storage.isMessageSeen(m.hash)) {
-      Storage.setMessageSeen(m.hash)
-      return true
-    } else {
-      return false
+  const newMessages: RetrieveMessageItem[] = []
+  for (const msg of receivedMessages) {
+    if (!await Storage.isMessageSeen(msg.hash)) {
+      Storage.setMessageSeen(msg.hash)
+      newMessages.push(msg)
     }
-  })
+  }
 
   const processedMessages = await Promise.all(
     newMessages.map(async m => {

@@ -18,5 +18,6 @@
   "logoutConfirmationDescription": "All your conversations will be deleted from the local database, you will be able to restore only messages for the last 14 days when you log in next time",
   "confirm": "Confirm",
   "cancel": "Cancel",
-  "unhandledError": "Session web ran into a problem that it couldn't handle, and now the page needs to be reloaded."
+  "unhandledError": "Session web ran into a problem that it couldn't handle, and now the page needs to be reloaded.",
+  "messageOutgoingPrefix": "You: "
 }

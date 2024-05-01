@@ -4,7 +4,7 @@
 
 body {
   margin: 0;
-  background: #121212;
+  background: var(--background);
   color: #fff;
   color-scheme: dark;
   min-height: 100lvh;
@@ -24,7 +24,7 @@ iframe {
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
+    --background: #fff;
     --foreground: 0 0% 3.9%;
 
     --card: 0 0% 100%;
@@ -54,10 +54,12 @@ iframe {
     --ring: 0 0% 3.9%;
 
     --radius: 0.5rem;
+
+    --brand: #00f782;
   }
 
   .dark {
-    --background: 0 0% 3.9%;
+    --background: #121212;
     --foreground: 0 0% 98%;
 
     --card: 0 0% 3.9%;
