@@ -16,11 +16,11 @@ import { concatUInt8Array } from '@/shared/api/crypto'
 import { removeMessagePadding } from '@/shared/api/buffer-padding'
 import { getAllCachedECKeyPair } from '@/shared/api/closed-groups'
 
-export async function getNewMessages() {
+export async function getNewMessages(node: string) {
   const keypair = await UserUtils.getIdentityKeyPair()
   if (!keypair) throw new Error('No identity keypair found')
   const results = await pollSnode({
-    snode: '167.86.86.177:22021',//_.sample(snodes) as string,
+    snode: node,
     namespace: SnodeNamespaces.UserMessages,
     pubkey: toHex(keypair.pubKey)
   })
@@ -46,7 +46,7 @@ export async function getNewMessages() {
       const envelope = SignalService.Envelope.decode(message.body)
 
       if (envelope.content && envelope.content.length > 0) {
-        return await decryptNewMessage(envelope)
+        return await decryptNewMessage(envelope, content.messageHash)
       } else {
         return null
       }
@@ -92,9 +92,10 @@ type ProcessedMessage = {
   envelope: SignalService.Envelope;
   content: SignalService.Content;
   sentAtTimestamp: number;
+  hash: string;
 }
 
-async function decryptNewMessage(envelope: SignalService.Envelope): Promise<ProcessedMessage | null> {
+async function decryptNewMessage(envelope: SignalService.Envelope, hash: string): Promise<ProcessedMessage | null> {
   const plaintext = await decrypt(envelope)
   if (!plaintext) return null
   if (plaintext instanceof ArrayBuffer && plaintext.byteLength === 0) {
@@ -102,7 +103,7 @@ async function decryptNewMessage(envelope: SignalService.Envelope): Promise<Proc
   }
   const sentAtTimestamp = toNumber(envelope.timestamp)
   const content = SignalService.Content.decode(new Uint8Array(plaintext))
-  return { envelope, content, sentAtTimestamp }
+  return { envelope, content, sentAtTimestamp, hash }
 }
 
 async function decrypt(envelope: SignalService.Envelope): Promise<null | ArrayBuffer> {

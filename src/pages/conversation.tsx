@@ -1,15 +1,21 @@
-import React from 'react'
-import { fetchSnodesList } from '@/shared/api/snodes'
-import { generateKeypair, generateMnemonic } from '@/shared/api/account-manager'
-import _ from 'lodash'
 import * as Storage from '@/shared/api/storage'
-import { getNewMessages } from '@/shared/api/messages'
 import { LeftPanel } from '@/widgets/left-panel'
 import { Separator } from '@/shared/ui/separator'
 import { PageWrapper } from '@/widgets/page-wrapper'
 import { ResizablePanel } from '@/shared/ui/resizable'
+import { useLiveQuery } from 'dexie-react-hooks'
+import { useParams } from 'react-router-dom'
+import { useAppSelector } from '@/shared/store/hooks'
+import { selectAccount } from '@/shared/store/slices/account'
 
 export function ConversationPage() {
+  const account = useAppSelector(selectAccount)
+  const conversationID = useParams().id
+  const messages = useLiveQuery(() => account
+    ? Storage.db.messages.where({ accountSessionID: account.sessionID, conversationID }).toArray()
+    : [], 
+    [account, conversationID]
+  )
 
   return (
     <PageWrapper>
@@ -28,8 +34,20 @@ export function ConversationPage() {
               </div>
             </form> */}
         {/* </div> */}
-        <div className='flex-1'>
-          test
+        <div className='flex flex-col flex-1 p-4 gap-1'>
+          {messages?.map(msg => (
+            <div key={msg.hash} className='flex gap-2'>
+              <span>{Intl.DateTimeFormat('ru-RU', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                month: 'numeric',
+                day: 'numeric',
+                year: 'numeric'
+              }).format(msg.timestamp)}</span>
+              <div>{msg.textContent}</div>
+            </div>
+          ))}
         </div>
       </ResizablePanel>
     </PageWrapper>

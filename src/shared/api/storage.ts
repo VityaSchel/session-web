@@ -6,6 +6,7 @@ import { Conversation } from '@/shared/api/conversations'
 
 export type DbAccount = {
   sessionID: string
+  mnemonic: string
   displayName?: string
   profileImage?: Blob
 }
@@ -20,23 +21,32 @@ export type DbMessage = {
   hash: string
   conversationID: string
   read: boolean
+  textContent: string | null
+  timestamp: number
+}
+
+export type DbUser = {
+  sessionID: string
+  displayName?: string
+  profileImage?: Blob
 }
 
 export class SessionWebDatabase extends Dexie {
   accounts!: Table<DbAccount>
   conversations!: Table<DbConversation>
   messages!: Table<DbMessage>
+  users!: Table<DbUser>
 
   constructor() {
     super('session-web')
     this.version(1).stores({
       accounts: 'sessionID',
       conversations: 'id, accountSessionID',
-      messages: 'hash, conversationID, read, accountSessionID'
+      messages: 'hash, conversationID, read, accountSessionID',
+      users: 'sessionID'
     })
   }
 }
-
 
 export const db = new SessionWebDatabase()
 
@@ -56,7 +66,7 @@ export function getIdentityKeyPair(): SessionKeyPair | undefined {
   return identityKeyPair
 }
 
-export function setIdentityKeypair(keypair: SessionKeyPair) {
+export function setIdentityKeypair(keypair: SessionKeyPair | undefined) {
   identityKeyPair = keypair
 }
 

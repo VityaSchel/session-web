@@ -65,7 +65,7 @@ function SignInScreen({ onGoBack }: {
   const handleLogin = async () => {
     try {
       const keypair = await generateKeypair(mnemonic)
-      const sessionID = '05' + toHex(keypair.ed25519KeyPair.publicKey)
+      const sessionID = toHex(keypair.pubKey)
       if (sessionID.length !== 66) {
         throw new Error('Invalid public key: ' + sessionID)
       } else {
@@ -77,6 +77,7 @@ function SignInScreen({ onGoBack }: {
         await Storage.setIdentityKeypair(keypair)
 
         const dbAccount: Storage.DbAccount = {
+          mnemonic,
           sessionID,
         }
         await Storage.db.accounts.put(dbAccount)
@@ -118,7 +119,7 @@ function SignUpScreen({ onGoBack }: {
   const { mnemonic, sessionID, keypair } = React.useMemo(() => {
     const mnemonic = generateMnemonic()
     const keypair = generateKeypair(mnemonic)
-    const sessionID = '05' + toHex(keypair.ed25519KeyPair.publicKey)
+    const sessionID = toHex(keypair.pubKey)
     return { mnemonic, sessionID, keypair }
   }, [])
 
@@ -132,6 +133,7 @@ function SignUpScreen({ onGoBack }: {
     dispatch(setAuthorized(true))
 
     const dbAccount: Storage.DbAccount = {
+      mnemonic,
       sessionID
     }
     await Storage.db.accounts.put(dbAccount)
@@ -142,7 +144,7 @@ function SignUpScreen({ onGoBack }: {
 
   return (
     <div className='flex flex-col items-center gap-6'>
-      <h1 className='font-bold text-2xl'>{t('signUpHeader')}</h1>
+      <h1 className='font-bold text-2xl'>{t('createAccountHeader')}</h1>
       <div className='flex flex-col gap-2 items-center'>
         <span>{t('generatedSessionID')}</span>
         <span className='font-mono p-4 bg-neutral-800 border border-neutral-600'>

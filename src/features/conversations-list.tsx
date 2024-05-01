@@ -146,7 +146,7 @@ function ConversationItem({ selected, convo, isCollapsed }: {
           buttonVariants({ variant: variant, size: 'sm' }),
           variant === 'default' &&
           'dark:bg-muted dark:text-white dark:hover:bg-muted dark:hover:text-white',
-          'justify-start'
+          '!justify-start gap-3 !text-sm'
         )}
       >
         <Avatar className='w-[24px] h-[24px] text-neutral-400 font-semibold text-xs'>
