@@ -5,9 +5,12 @@ import { LoginPage } from '@/pages/login.tsx'
 import { ConversationPage } from '@/pages/conversation.tsx'
 import '@/shared/styles/global.css'
 import {
+  BrowserRouter,
   createBrowserRouter,
   Navigate,
+  Route,
   RouterProvider,
+  Routes,
 } from 'react-router-dom'
 import i18next from 'i18next'
 import Backend from 'i18next-http-backend'
@@ -25,8 +28,8 @@ import { setIdentityKeypair } from '@/shared/api/storage'
 import { generateKeypair } from '@/shared/api/account-manager'
 import { ErrorBoundary } from '@/app/error-boundary'
 import { poll } from '@/shared/poll'
-import { NotFoundPage } from '@/pages/not-found-page'
 import { SodiumLoader } from '@/app/sodium-loader'
+import { MainWrapper } from '@/widgets/main-wrapper'
 
 i18next
   .use(initReactI18next)
@@ -38,25 +41,6 @@ i18next
     },
     defaultNS: 'common'
   })
-
-const router = createBrowserRouter([
-  {
-    path: '/',
-    element: <ProtectedRoute><HomePage /></ProtectedRoute>,
-  },
-  {
-    path: '/login',
-    element: <LoginPage />,
-  },
-  {
-    path: '/conversation/:id',
-    element: <ProtectedRoute><ConversationPage /></ProtectedRoute>,
-  },
-  {
-    path: '*',
-    element: <NotFoundPage />,
-  },
-])
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
@@ -102,7 +86,16 @@ function App() {
 
   return (
     <div>
-      <RouterProvider router={router} />
+      <BrowserRouter>
+        <Routes>
+          <Route path='/' element={<ProtectedRoute><MainWrapper /></ProtectedRoute>}>
+            <Route path='/' element={<HomePage />} />
+            <Route path='/conversation/:id' element={<ConversationPage />} />
+          </Route>
+          <Route path='/login' element={<LoginPage />} />
+          <Route path='*' element={<Navigate to='/' />} />
+        </Routes>
+      </BrowserRouter>
       <Toaster richColors />
     </div>
   )

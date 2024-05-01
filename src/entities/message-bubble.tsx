@@ -9,14 +9,19 @@ export function MessageBubble({ msg }: {
       'justify-start': msg.direction === 'incoming',
       'justify-end': msg.direction === 'outgoing',
     })}>
-      <div className={cx('px-3 py-[6px] rounded-2xl max-w-[30%] break-words w-fit', {
-        'bg-conversation-bubble': msg.direction === 'incoming',
-        'bg-brand text-black': msg.direction === 'outgoing',
+      <div className={cx('flex w-full max-w-[80%]', {
+        'justify-start': msg.direction === 'incoming',
+        'justify-end': msg.direction === 'outgoing',
       })}>
-        <div className='text-[13px] font-normal leading-4 whitespace-pre-wrap'>{msg.textContent} <Timestamp 
-          timestamp={msg.timestamp} 
-          className={msg.direction === 'incoming' ? 'text-muted-foreground' : 'text-green-700'}
-        /></div>
+        <div className={cx('px-3 py-[6px] rounded-2xl break-words w-fit max-w-[min(430px,100%)]', {
+          'bg-conversation-bubble': msg.direction === 'incoming',
+          'bg-brand text-black': msg.direction === 'outgoing',
+        })}>
+          <div className='text-[13px] font-normal leading-4 whitespace-pre-wrap'>{msg.textContent} <Timestamp 
+            timestamp={msg.timestamp} 
+            className={msg.direction === 'incoming' ? 'text-muted-foreground' : 'text-green-700'}
+          /></div>
+        </div>
       </div>
     </div>
   )

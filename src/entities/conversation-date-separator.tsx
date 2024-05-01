@@ -8,7 +8,7 @@ export function ConversationDateSeparator({ timestamp }: {
 
   return (
     <div className='flex justify-center sticky top-2'>
-      <span className='bg-neutral-800 rounded-full px-2 py-0.5 font-medium text-sm'>
+      <span className='bg-neutral-800 bg-opacity-30 backdrop-blur-lg rounded-full px-2 py-0.5 font-medium text-sm'>
         {isSameCalendarDate(timestamp, Date.now()) 
           ? t('today')
           : Intl.DateTimeFormat(i18n.language, {

@@ -20,27 +20,38 @@ export function Conversation({ conversationID }: {
     [account, conversationID]
   )
 
-  const messagesWithSeparators = React.useMemo(() => {
+  const dates = React.useMemo(() => {
     if (!messages) return undefined
 
-    const messagesWithSeparators: (Storage.DbMessage | { timestamp: number })[] = []
+    const dates: { timestamp: number, messages: Storage.DbMessage[] }[] = []
     let lastTimestamp: number | undefined
+    let messagesToday = []
     for (const msg of messages) {
-      if (lastTimestamp === undefined || !isSameCalendarDate(lastTimestamp, msg.timestamp)) {
-        messagesWithSeparators.push({ timestamp: msg.timestamp })
+      if (lastTimestamp !== undefined) {
+        if (isSameCalendarDate(lastTimestamp, msg.timestamp)) {
+          messagesToday.push(msg)
+        } else {
+          dates.push({ timestamp: lastTimestamp, messages: messagesToday })
+          messagesToday = []
+        }
+      } else {
+        messagesToday.push(msg)
       }
       lastTimestamp = msg.timestamp
-      messagesWithSeparators.push(msg)
     }
-    return messagesWithSeparators
+    if (messagesToday.length && lastTimestamp !== undefined) {
+      dates.push({ timestamp: lastTimestamp, messages: messagesToday })
+    }
+    return dates
   }, [messages])
 
   return (
     <div className='flex flex-col p-4 gap-1 w-full min-h-full justify-end'>
-      {messagesWithSeparators?.map(msgOrSeparator => (
-        'hash' in msgOrSeparator
-          ? <MessageBubble key={msgOrSeparator.hash} msg={msgOrSeparator} />
-          : <ConversationDateSeparator key={msgOrSeparator.timestamp} timestamp={msgOrSeparator.timestamp} />
+      {dates?.map(date => (
+        <div className='relative flex flex-col gap-1 w-full' key={date.timestamp}>
+          <ConversationDateSeparator timestamp={date.timestamp} />
+          {date.messages.map(msg => <MessageBubble key={msg.hash} msg={msg} />)}
+        </div>
       ))}
     </div>
   )

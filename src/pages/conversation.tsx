@@ -40,28 +40,25 @@ export function ConversationPage() {
   const conversation = useLiveQuery(() => Storage.db.conversations.get(conversationID), [conversationID])
 
   return (
-    <PageWrapper>
-      <LeftPanel />
-      <ResizablePanel className='flex flex-col'>
-        <div className="flex items-center px-4 py-2 h-14">
-          <h1 className="text-xl font-bold">
-            {conversation && (conversation.displayName || formatSessionID(conversation.id, 'long'))}
-          </h1>
-        </div>
-        <Separator />
-        {/* <div className="bg-background/95 p-4 backdrop-blur supports-[backdrop-filter]:bg-background/60"> */}
-        {/* <Search /> */}
-        {/* <form>
-              <div className="relative">
-                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input placeholder="Search" className="pl-8" />
-              </div>
-            </form> */}
-        {/* </div> */}
-        <div className='overflow-auto flex-1'>
-          {conversationID !== undefined && <Conversation conversationID={conversationID} />}
-        </div>
-      </ResizablePanel>
-    </PageWrapper>
+    <div className='flex flex-col flex-1 h-full'>
+      <div className="flex items-center px-4 py-2 h-14 shrink-0">
+        <h1 className="text-xl font-bold">
+          {conversation && (conversation.displayName || formatSessionID(conversation.id, 'long'))}
+        </h1>
+      </div>
+      <Separator />
+      {/* <div className="bg-background/95 p-4 backdrop-blur supports-[backdrop-filter]:bg-background/60"> */}
+      {/* <Search /> */}
+      {/* <form>
+            <div className="relative">
+              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input placeholder="Search" className="pl-8" />
+            </div>
+          </form> */}
+      {/* </div> */}
+      <div className='overflow-auto flex-1'>
+        {conversationID !== undefined && <Conversation conversationID={conversationID} />}
+      </div>
+    </div>
   )
 }
