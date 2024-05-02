@@ -49,7 +49,7 @@ export function ConversationPage() {
     <div className='flex flex-col flex-1 h-full'>
       <div className="flex items-center px-4 py-2 h-14 shrink-0">
         <h1 className="text-xl font-bold">
-          {conversation && (conversation.displayName || formatSessionID(conversation.id, 'long'))}
+          {conversation && (conversation.displayName || formatSessionID(conversation.sessionID, 'long'))}
         </h1>
       </div>
       <Separator />

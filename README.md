@@ -1,8 +1,12 @@
-# Session Web
+# [Session Web](https://session-web.pages.dev)
 
 Experimental project running [Session messenger](https://getsession.org) in browser.
 
+![Screenshot](https://github.com/VityaSchel/session-web/assets/59040542/3d8a1744-efa5-4cbc-8c60-5d06dfcc77c3)
 
+Visit Session Web: [session-web.pages.dev](https://session-web.pages.dev)
+
+Works in Tor! 99% client-side (still requires proxy to swarms though). All encryption and private keys never leave browser.
 
 **This is rather a technical challenge for me, rather than a stable client**
 
@@ -46,4 +50,4 @@ Source code of proxy server is at [proxy](./proxy) directory and is written in B
 
 Be aware that I didn't care about best practices when writing this code, it does not use any security measures implemented in official clients, it does not prevent you from any kind of malicious attack, for example MITM. Backend requests to nodes aren't onion routed. SSL certificate pinning is not implemented (bun does not support this yet). This client does not support any cool features and is not maintained for security vulnerabilities found in code or dependencies.
 
-Runs on Vite. Mostly written from scratch using [Session Desktop client](https://github.com/oxen-io/session-desktop)
+Runs on Vite. Backend is mostly written from scratch using parts of code from [Session Desktop client](https://github.com/oxen-io/session-desktop)

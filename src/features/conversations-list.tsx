@@ -76,9 +76,9 @@ function ConversationItem({ selected, convo, isCollapsed }: {
 }) {
   const account = useAppSelector(selectAccount)
   const newMessages = useLiveQuery(() => account
-    ? db.messages.where({ conversationID: convo.id, accountSessionID: account.sessionID, read: Number(false) as 0 | 1 }).count()
+    ? db.messages.where({ conversationID: convo.sessionID, accountSessionID: account.sessionID, read: Number(false) as 0 | 1 }).count()
     : 0,
-    [convo.id]
+    [convo.sessionID]
   )
 
   const variant = selected ? 'default' : 'ghost'
@@ -99,9 +99,9 @@ function ConversationItem({ selected, convo, isCollapsed }: {
       }
     } else {
       if(convo.type === ConversationType.DirectMessages) {
-        return convo.id.slice(2, 4)
+        return convo.sessionID.slice(2, 4)
       } else {
-        return convo.id.slice(0, 2)
+        return convo.sessionID.slice(0, 2)
       }
     }
   }, [convo])
@@ -111,7 +111,7 @@ function ConversationItem({ selected, convo, isCollapsed }: {
       <Tooltip key={convo.id} delayDuration={0}>
         <TooltipTrigger asChild>
           <Link
-            to={`/conversation/${convo.id}`}
+            to={`/conversation/${convo.sessionID}`}
             className={cx('relative',
               buttonVariants({ variant: variant, size: 'icon' }),
               'h-9 w-9',
@@ -124,11 +124,11 @@ function ConversationItem({ selected, convo, isCollapsed }: {
               {displayImage && <AvatarImage src={displayImage} alt={convo.displayName} />}
               <AvatarFallback>{trimmedDisplayName.toUpperCase()}</AvatarFallback>
             </Avatar>
-            <span className="sr-only">{convo.displayName || convo.id}</span>
+            <span className="sr-only">{convo.displayName || convo.sessionID}</span>
           </Link>
         </TooltipTrigger>
         <TooltipContent side="right" className="flex items-center gap-4">
-          {convo.displayName || convo.id}
+          {convo.displayName || convo.sessionID}
           {newMessages !== undefined && newMessages > 0 && (
             <span className="ml-auto text-muted-foreground">
               {newMessages}
@@ -138,7 +138,7 @@ function ConversationItem({ selected, convo, isCollapsed }: {
       </Tooltip>
     ) : (
       <Link
-        to={`/conversation/${convo.id}`}
+        to={`/conversation/${convo.sessionID}`}
         className={cx('max-w-full',
           buttonVariants({ variant: variant, size: 'sm' }),
           variant === 'default' &&
@@ -147,11 +147,11 @@ function ConversationItem({ selected, convo, isCollapsed }: {
         )}
       >
         <Avatar className='w-[48px] h-[48px] text-neutral-400 font-semibold text-base'>
-          {displayImage && <AvatarImage src={displayImage} alt={convo.displayName || convo.id} />}
+          {displayImage && <AvatarImage src={displayImage} alt={convo.displayName || convo.sessionID} />}
           <AvatarFallback>{trimmedDisplayName.toUpperCase()}</AvatarFallback>
         </Avatar>
         <div className='flex flex-col gap-1 flex-1 min-w-0'>
-          <span className='font-medium text-ellipsis overflow-hidden'>{convo.displayName || convo.id}</span>
+          <span className='font-medium text-ellipsis overflow-hidden'>{convo.displayName || convo.sessionID}</span>
           {convo.lastMessage && (<span className='font-normal'>
             <ConversationPreviewMessage message={convo.lastMessage} />
           </span>)}

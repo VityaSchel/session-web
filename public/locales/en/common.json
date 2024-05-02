@@ -32,5 +32,7 @@
   "aboutOns": "View and register ONS names",
   "onsInvalid": "ONS name not found",
   "unsupportedLegacyOns": "This ONS has legacy format which is unsupported at the moment",
-  "indexedDbNotAvailable": "Your browser does not support IndexedDB, so data will not be saved when the page is reloaded. Please use another browser or allow the use of IndexedDB in the settings (dom.indexedDB.privateBrowsing.enabled = true on the about:config page for Tor)."
+  "indexedDbNotAvailable": "Your browser does not support IndexedDB, so data will not be saved when the page is reloaded. Please use another browser or allow the use of IndexedDB in the settings (dom.indexedDB.privateBrowsing.enabled = true on the about:config page for Tor).",
+  "clearDb": "Reloading does not work? Click to erase database",
+  "clearDbWarning": "WARNING: Clicking OK will delete local database. You can make a backup of your last used mnemonic (seed) recovery phrase by closing this popup with Cancel button, then opening DevTools -> Application -> localStorage -> 'persist:root'"
 }

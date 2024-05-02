@@ -17,7 +17,7 @@ i18next
   .use(initReactI18next)
   .use(Backend)
   .init({
-    lng: 'en',
+    lng: navigator.language || 'en',
     fallbackLng: 'en',
     backend: {
       loadPath: '/locales/{{lng}}/{{ns}}.json',

@@ -22,13 +22,16 @@ export async function poll() {
     dataMessages
       .map(msg => { 
         const direction = msg.to ? 'outgoing' : 'incoming'
+        const conversationID = msg.to ?? msg.envelope.source
+        const conversationPathnameRegex = /^\/conversation\/([^/]+)$/
+        const inThisDialog = conversationPathnameRegex.test(window.location.pathname) && window.location.pathname.match(conversationPathnameRegex)![1] === conversationID
         return {
           direction,
-          conversationID: msg.to ?? msg.envelope.source,
+          conversationID,
           hash: msg.hash,
           accountSessionID,
           textContent: msg.content.dataMessage!.body ?? null,
-          read: Number(direction === 'outgoing') as 0 | 1,
+          read: Number(inThisDialog || direction === 'outgoing') as 0 | 1,
           timestamp: msg.sentAtTimestamp,
           sendingStatus: 'sent',
           id: uuid()

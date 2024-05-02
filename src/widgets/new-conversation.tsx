@@ -10,6 +10,7 @@ import { useAppSelector } from '@/shared/store/hooks'
 import { selectAccount } from '@/shared/store/slices/account'
 import { ConversationType } from '@/shared/api/conversations'
 import { useNavigate } from 'react-router-dom'
+import { v4 as uuid } from 'uuid'
 
 export function NewConversation() {
   const account = useAppSelector(selectAccount)
@@ -55,8 +56,9 @@ export function NewConversation() {
     if (sessionID) {
       if (!await db.conversations.get({ accountSessionID: account.sessionID, id: recipient })) {
         await db.conversations.add({
+          id: uuid(),
           accountSessionID: account.sessionID,
-          id: sessionID,
+          sessionID,
           lastMessage: null,
           lastMessageTime: 0,
           type: ConversationType.DirectMessages
