@@ -251,6 +251,6 @@ server.get('/ons', async (req, res) => {
 server.options('/poll', (req, res) => { res.status(200).send(true) })
 server.options('/store', (req, res) => { res.status(200).send(true) })
 
-server.listen(3000, () => {
-  console.log('App is listening on port 3000')
+server.listen(process.env.PORT || 3000, () => {
+  console.log('App is listening on port ' + process.env.PORT || 3000)
 })
