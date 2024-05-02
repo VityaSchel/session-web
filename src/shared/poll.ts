@@ -55,14 +55,15 @@ export async function poll() {
 
   for (const msg of dataMessages) {
     const sessionID = msg.to ?? msg.from
-    const convoExists = await db.conversations.get({ sessionID, accountSessionID: account.sessionID })
-    if (!convoExists) {
+    const existingConvo = await db.conversations.get({ sessionID, accountSessionID: account.sessionID })
+    const displayName = msg.content.dataMessage?.profile?.displayName ?? existingConvo?.displayName ?? undefined
+    if (!existingConvo) {
       await db.conversations.add({
         id: uuid(),
         type: ConversationType.DirectMessages,
         accountSessionID,
         sessionID,
-        displayName: msg.content.dataMessage?.profile?.displayName ?? undefined,
+        displayName: displayName ?? undefined,
         // profileImage: msg.content.dataMessage?.profile?.profilePicture,
         lastMessage: {
           direction: msg.to ? 'outgoing' : 'incoming',
@@ -71,7 +72,9 @@ export async function poll() {
         lastMessageTime: msg.sentAtTimestamp,
       })
     } else {
-      await db.conversations.update(convoExists.id, {
+      await db.conversations.update(existingConvo.id, {
+        displayName: displayName,
+        // profileImage: msg.content.dataMessage?.profile?.profilePicture,
         lastMessage: {
           direction: msg.to ? 'outgoing' : 'incoming',
           textContent: msg.content.dataMessage?.body ?? null
