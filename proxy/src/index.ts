@@ -12,7 +12,7 @@ import { RetryWithOtherNode421Error } from './utils/errors'
 const server = bunrest()
 
 server.use(cors({
-  origin: [/^https?:\/\/localhost/, 'https://session-web.pages.dev/']
+  origin: [/^https?:\/\/localhost/, 'https://session-web.pages.dev']
 }))
 
 export const nodes: Map<string, Snode> = new Map()
