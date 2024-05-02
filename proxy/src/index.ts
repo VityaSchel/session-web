@@ -248,6 +248,9 @@ server.get('/ons', async (req, res) => {
   }
 })
 
+server.options('/snodes', (req, res) => { res.status(200).send(true) })
+server.options('/network_time', (req, res) => { res.status(200).send(true) })
+server.options('/swarms', (req, res) => { res.status(200).send(true) })
 server.options('/poll', (req, res) => { res.status(200).send(true) })
 server.options('/store', (req, res) => { res.status(200).send(true) })
 
