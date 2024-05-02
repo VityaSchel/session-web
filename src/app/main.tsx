@@ -1,9 +1,6 @@
 import '@/shared/styles/global.css'
 import React, { Suspense } from 'react'
 import ReactDOM from 'react-dom/client'
-import i18next from 'i18next'
-import Backend from 'i18next-http-backend'
-import { initReactI18next } from 'react-i18next'
 import { Provider } from 'react-redux'
 import { persistor, store } from '@/shared/store'
 import { ThemeProvider } from '@/app/theme-provider'
@@ -12,18 +9,7 @@ import { AppLoader } from '@/widgets/loader'
 import { ErrorBoundary } from '@/app/error-boundary'
 import { SodiumLoader } from '@/app/sodium-loader'
 import { IndexedDbLoader } from '@/app/indexeddb-loader'
-
-i18next
-  .use(initReactI18next)
-  .use(Backend)
-  .init({
-    lng: navigator.language || 'en',
-    fallbackLng: 'en',
-    backend: {
-      loadPath: '/locales/{{lng}}/{{ns}}.json',
-    },
-    defaultNS: 'common'
-  })
+import { I18nLoader } from '@/app/i18n-loader'
 
 const AppComponent = React.lazy(() => import('@/app/app.tsx'))
 
@@ -36,7 +22,9 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
             <ErrorBoundary>
               <SodiumLoader>
                 <IndexedDbLoader>
-                  <AppComponent />
+                  <I18nLoader>
+                    <AppComponent />
+                  </I18nLoader>
                 </IndexedDbLoader>
               </SodiumLoader>
             </ErrorBoundary>
