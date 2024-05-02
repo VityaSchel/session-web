@@ -134,7 +134,7 @@ async function decryptForClosedGroup(envelope: SignalService.Envelope): Promise<
   // case .closedGroupCiphertext: for ios
   try {
     const hexEncodedGroupPublicKey = envelope.source
-    if (!GroupUtils.isClosedGroup(PubKey.cast(hexEncodedGroupPublicKey))) {
+    if (!GroupUtils.isClosedGroup(hexEncodedGroupPublicKey)) {
       toast.error('Received medium group message for unknown group')
       throw new Error('Invalid group public key') // invalidGroupPublicKey
     }

@@ -2,6 +2,8 @@
 
 Experimental project running [Session messenger](https://getsession.org) in browser.
 
+
+
 **This is rather a technical challenge for me, rather than a stable client**
 
 - [X] Receiving messages

@@ -14,7 +14,6 @@ import { ConversationType } from '@/shared/api/conversations'
 import { useAppSelector } from '@/shared/store/hooks'
 import { selectAccount } from '@/shared/store/slices/account'
 import { useTranslation } from 'react-i18next'
-import { SquarePenIcon } from 'lucide-react'
 import { CounterBadge } from '@/shared/ui/counter-badge'
 import { ConversationPreviewMessage } from '@/entities/conversation-preview-message'
 import { CreateConversationButton } from '@/entities/create-conversation-button'
@@ -31,7 +30,7 @@ export function ConversationsList({ isCollapsed }: {
   const selectedConvo: DbConversation | null = React.useMemo(() => {
     if (!conversations) return null
     if (pathname.startsWith('/conversation')) {
-      return conversations?.find(convo => convo.id === params.id) || null
+      return conversations?.find(convo => convo.sessionID === params.id) || null
     }
     return null
   }, [params.id, conversations, pathname])

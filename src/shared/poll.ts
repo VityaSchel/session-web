@@ -51,13 +51,14 @@ export async function poll() {
   await db.users.bulkAdd(profiles)
 
   for (const msg of dataMessages) {
-    const conversationID = msg.to ?? msg.envelope.source
-    const convoExists = await db.conversations.get({ id: conversationID, accountSessionID: account.sessionID })
+    const sessionID = msg.to ?? msg.from
+    const convoExists = await db.conversations.get({ sessionID, accountSessionID: account.sessionID })
     if (!convoExists) {
       await db.conversations.add({
+        id: uuid(),
         type: ConversationType.DirectMessages,
         accountSessionID,
-        id: conversationID,
+        sessionID,
         displayName: msg.content.dataMessage?.profile?.displayName ?? undefined,
         // profileImage: msg.content.dataMessage?.profile?.profilePicture,
         lastMessage: {
@@ -67,7 +68,7 @@ export async function poll() {
         lastMessageTime: msg.sentAtTimestamp,
       })
     } else {
-      await db.conversations.update(conversationID, {
+      await db.conversations.update(convoExists.id, {
         lastMessage: {
           direction: msg.to ? 'outgoing' : 'incoming',
           textContent: msg.content.dataMessage?.body ?? null

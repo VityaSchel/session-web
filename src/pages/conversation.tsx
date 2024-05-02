@@ -19,7 +19,7 @@ export function ConversationPage() {
     async function getConversation() {
       if (!account) return
 
-      if (!await Storage.db.conversations.get({ id: conversationID, accountSessionID: account.sessionID })) {
+      if (!await Storage.db.conversations.get({ sessionID: conversationID, accountSessionID: account.sessionID })) {
         navigate('/')
       } else {
         
@@ -37,7 +37,7 @@ export function ConversationPage() {
   }, [conversationID, navigate, account])
 
   const conversation = useLiveQuery(() => account
-    ? Storage.db.conversations.get({ id: conversationID, accountSessionID: account.sessionID })
+    ? Storage.db.conversations.get({ sessionID: conversationID, accountSessionID: account.sessionID })
     : undefined,
   [conversationID, account])
 

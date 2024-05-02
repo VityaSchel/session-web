@@ -16,8 +16,9 @@ export type DbAccount = {
 }
 
 export type DbConversation = {
-  accountSessionID: string
   id: string
+  accountSessionID: string
+  sessionID: string
   lastMessage: {
     direction: 'incoming' | 'outgoing'
     textContent: string | null
@@ -58,11 +59,10 @@ export class SessionWebDatabase extends Dexie {
   messages_seen!: Table<DbMessageSeen>
 
   constructor() {
-    console.log(window.shimmedIndexedDb, 'window.shimmedIndexedDb')
     super('session-web', window.shimmedIndexedDb ? { indexedDB: fakeIndexedDB, IDBKeyRange: fakeIDBKeyRange } : undefined)
     this.version(1).stores({
       accounts: 'sessionID',
-      conversations: 'id, accountSessionID, [id+accountSessionID], lastMessageTime',
+      conversations: 'id, sessionID, accountSessionID, [id+accountSessionID], [sessionID+accountSessionID], lastMessageTime',
       messages: 'hash, id, conversationID, read, accountSessionID, [conversationID+accountSessionID], [conversationID+accountSessionID+read], sendingStatus, [conversationID+accountSessionID+hash+sendingStatus]',
       users: 'sessionID',
       messages_seen: 'hash, receivedAt, accountSessionID'
