@@ -1,9 +1,9 @@
 import { last } from 'lodash'
-import { SnodeNamespaces } from '../../types/namespaces'
+import { SnodeNamespaces } from './types/namespaces'
 import { seeds } from './seeds-certificates'
 import * as SnodeAPIRetrieve from './snode-api-retrieve'
 import { ed25519Str } from './onion-path'
-import { SnodeSignatureResult } from '../../types/snode-signature-result'
+import { SnodeSignatureResult } from './types/snode-signature-result'
 import pRetry from 'p-retry'
 import { RetryWithOtherNode421Error } from './utils/errors'
 

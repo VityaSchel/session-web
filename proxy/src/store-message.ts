@@ -1,5 +1,5 @@
 import _, { isEmpty } from 'lodash'
-import { DeleteByHashesFromNodeParams, DeleteFromNodeSubRequest, NotEmptyArrayOfBatchResults, StoreOnNodeParams, StoreOnNodeParamsNoSig, StoreOnNodeSubRequest } from '../../types/snode-request-types'
+import { DeleteByHashesFromNodeParams, DeleteFromNodeSubRequest, NotEmptyArrayOfBatchResults, StoreOnNodeParams, StoreOnNodeParamsNoSig, StoreOnNodeSubRequest } from './types/snode-request-types'
 import { Snode } from './snodes'
 import { getSwarms } from './swarms'
 import { doSnodeBatchRequest } from './batch-request'

@@ -2,7 +2,7 @@ import https from 'https'
 // eslint-disable-next-line import/no-named-default
 import { clone } from 'lodash'
 import pRetry from 'p-retry'
-import { HTTPError, NotFoundError } from './utils/errors'
+import { HTTPError, NotFoundError, RetryWithOtherNode421Error } from './utils/errors'
 import { Snode } from './snodes'
 import { SnodeResponse } from './batch-request'
 
@@ -73,7 +73,7 @@ async function doRequest({
       throw new NotFoundError('Failed to resolve address', e)
     }
     if (e.message === ERROR_421_HANDLED_RETRY_REQUEST) {
-      throw new pRetry.AbortError(ERROR_421_HANDLED_RETRY_REQUEST)
+      throw new RetryWithOtherNode421Error()
     }
     throw e
   }

@@ -2,10 +2,10 @@
 // github.com/oxen-io/session-desktop
 
 import { Snode } from './snodes'
-import { SnodeNamespace, SnodeNamespaces } from '../../types/namespaces'
-import { RetrieveLegacyClosedGroupSubRequestType, RetrieveSubRequestType } from '../../types/snode-request-types'
+import { SnodeNamespace, SnodeNamespaces } from './types/namespaces'
+import { RetrieveLegacyClosedGroupSubRequestType, RetrieveSubRequestType } from './types/snode-request-types'
 import { isArray, omit } from 'lodash'
-import { SnodeSignatureResult } from '../../types/snode-signature-result'
+import { SnodeSignatureResult } from './types/snode-signature-result'
 import { doSnodeBatchRequest } from './batch-request'
 import { GetNetworkTime } from './network-time'
 import { RetryWithOtherNode421Error } from './utils/errors'

@@ -59,12 +59,7 @@ function isUserConfigNamespace(namespace: SnodeNamespaces) {
       return false
 
     default:
-      try {
-        throw new Error(`isUserConfigNamespace case not handled: ${namespace}`)
-      } catch (e) {
-        console.warn(`isUserConfigNamespace case not handled: ${namespace}: ${e.message}`)
-        return false
-      }
+      throw new Error(`isUserConfigNamespace case not handled: ${namespace}`)
   }
 }
 
@@ -95,12 +90,7 @@ function namespacePriority(namespace: SnodeNamespaces): number {
       return 10
 
     default:
-      try {
-        throw new Error(`namespacePriority case not handled: ${namespace}`)
-      } catch (e) {
-        console.warn(`namespacePriority case not handled: ${namespace}: ${e.message}`)
-        return 1
-      }
+      throw new Error(`namespacePriority case not handled: ${namespace}`)
   }
 }
 

@@ -7,7 +7,7 @@ import {
   MAX_SUBREQUESTS_COUNT,
   NotEmptyArrayOfBatchResults,
   SnodeApiSubRequests,
-} from '../../types/snode-request-types'
+} from './types/snode-request-types'
 import { Snode } from './snodes'
 
 /**
