@@ -240,9 +240,11 @@ server.get('/ons', async (req, res) => {
         error: response.error.message
       })
     } else {
+      const encryptedValue = response.result.encrypted_value
+      const nonce = response.result.nonce
       res.status(200).json({
         ok: true,
-        value: response.result.encrypted_value ?? null
+        value: (encryptedValue && nonce) ? encryptedValue + nonce : null
       })
     }
   }
